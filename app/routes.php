@@ -11,9 +11,17 @@
 |
 */
 
-// Show main page - login page
+// Show main page
 Route::get('/', 'HomeController@showMain');
 
+// Show user profile page
+Route::get('/profile', 'HomeController@showProfile');
+
+Route::get('/albums', 'HomeController@showAlbums');
+Route::get('/singlealbum', 'HomeController@showSingleAlbum');
+Route::get('/singlephoto', 'HomeController@showSinglePhoto');
+
+// Show login page
 Route::get('login', 'HomeController@showLogin');
 Route::post('login', function() {
     // get POST data
@@ -37,10 +45,3 @@ Route::get('logout', function() {
     Auth::logout();
     return Redirect::to('login');
 });
-
-// Show user profile page
-Route::get('/profile', 'HomeController@showProfile');
-
-Route::get('/albums', 'HomeController@showAlbums');
-Route::get('/singlealbum', 'HomeController@showSingleAlbum');
-Route::get('/singlephoto', 'HomeController@showSinglePhoto');

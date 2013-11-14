@@ -9,28 +9,12 @@
         <title>Gallery</title>
 
         <!-- Style css-->
-        <link href="assets/css/style.css" rel="stylesheet">
-
-        <script>
-            $(document).ready(function() {
-                $(".navigation_left_item>a").click(function(event){
-                    var li = $(this).parent();
-                    if (li.find("ul").length > 0) {
-                        event.preventDefault ? event.preventDefault() : event.returnValue = false;
-                        li.toggleClass("open");
-                    }
-                });
-            });
-        </script>
+        {{ HTML::style('assets/css/style.css') }}
 
     </head>
 
     <body class="{{ $bodyclass }}">
         <div class="body-container">
-
-            <!--<div class="footer">
-                footer
-            </div>-->
 
             <div class="navigation_left">
                 <div class="header">
@@ -66,10 +50,14 @@
 
             <div id="contents_and_footer">
 
-                <div class="contents" style="padding-top: 30px;">
+                <div class="contents">
                     {{ $content }}
                 </div>
             </div>
+
+        <!-- Scripts -->
+        {{ HTML::script('js/jquery-1.10.2.min.js') }}
+        {{ HTML::script('js/script.js') }}
 
     </body>
 

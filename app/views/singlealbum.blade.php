@@ -34,6 +34,7 @@
 
     <p>{{ Form::token() }}</p>
     <p>{{ Form::submit('Create') }}</p>
+
     {{ Form::close() }}
 </div>
 

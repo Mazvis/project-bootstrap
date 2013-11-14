@@ -14,13 +14,6 @@ class HomeController extends BaseController {
       |
      */
 
-    /**
-     * Show home page - the login page.
-     */
-    public function showWelcome() {
-        $this->layout->content = View::make('hello');
-        $this->layout->bodyclass = "sign-in-page";
-    }
 
     /**
      * Show the user profile.
@@ -33,13 +26,8 @@ class HomeController extends BaseController {
         $this->layout->content = View::make('login');
     }
 
-
-    Public static function has_file($key) {
-        return ! is_null(static::file("{$key}.tmp_name"));
-    }
-
     /**
-     * Show main page.
+     * Show home page
      */
     public function showMain() {
         $this->layout->content = View::make('main');
