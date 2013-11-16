@@ -2,18 +2,23 @@
 
 <div class="image-navigation" style="border: 1px solid red">
     <b>Create new:</b>
-    {{ Form::open(array('url' => '/', 'method' => 'post')) }}
+    {{ Form::open(array('route' => 'albums.get', 'method' => 'post')) }}
+
     <p>{{ Form::label('name', 'Album name') }}</p>
-    <p>{{ Form::text('name') }}</p>
+    <p>{{ Form::text('name', null, array('class'=>'form-control')) }}</p>
+
     <p>{{ Form::label('shDescription', 'Album short description') }}</p>
     <p>{{ Form::text('shDescription') }}</p>
+
     <p>{{ Form::label('description', 'Album full description') }}</p>
     <p>{{ Form::text('description') }}</p>
+
     <p>{{ Form::label('place', 'Fotographet place') }}</p>
     <p>{{ Form::text('place') }}</p>
 
-    <p>{{ Form::token() }}</p>
     <p>{{ Form::submit('Create') }}</p>
+
+    {{ Form::token() }}
     {{ Form::close() }}
 </div>
 

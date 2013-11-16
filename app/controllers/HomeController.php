@@ -14,6 +14,17 @@ class HomeController extends BaseController {
       |
      */
 
+    /**
+     * Show home page
+     */
+    public function showHome() {
+        $this->layout->content = View::make('home');
+
+        $home = new Home();
+        $photoUrlArray = $home->getPhotos();
+
+        $this->layout->content->photos_url = $photoUrlArray;
+    }
 
     /**
      * Show the user profile.
@@ -26,66 +37,32 @@ class HomeController extends BaseController {
         $this->layout->content = View::make('login');
     }
 
-    /**
-     * Show home page
-     */
-    public function showMain() {
-        $this->layout->content = View::make('main');
-
-        // upload photo
-        if (Input::hasFile('photo')){
-            $file = Input::file('photo');
-
-            $destinationPath = 'uploads/'.str_random(8);
-
-            $filename = $file->getClientOriginalName();
-            //$extension =$file->getClientOriginalExtension();
-            $upload_success = Input::file('photo')->move($destinationPath, $filename);
-
-            if( $upload_success ) {
-                return Response::json('success', 200);
-            } else {
-                return Response::json('error', 400);
-            }
-
-        }
-
-        // for photos displaying on page
-        $photos = DB::table('photos')->get();
-        $i=0;
-        $mas = null;
-        //$photo = DB::table('photos')->lists('photo_destination_url');
-        foreach ($photos as $photo)
-        {
-            $mas[$i] = $photo->photo_destination_url;
-            //$mas[$i] = $photo['0'];
-            $i++;
-        }
-        $this->layout->content->photos_url = $mas;
-
-
-        $this->layout->content->name = '*';
-        $this->layout->content->shDescription = '*';
-        $this->layout->content->description = '*';
-        $this->layout->content->place = '*';
-
-        //upload albums in database
-        $name = Input::get('name');
-
-        $shDesription = Input::get('shDescription');
-        $description = Input::get('description');
-        $place = Input::get('place');
-        DB::insert('insert into albums (album_name, album_short_description, album_full_description, album_place) values (?, ?, ?, ?)', array($name,$shDesription,$description,$place));
-
-
-    }
-
     public function showAlbums() {
         $this->layout->content = View::make('albums');
     }
-    public function showSingleAlbum() {
+
+    /*public function showSingleAlbum() {
         $this->layout->content = View::make('singlealbum');
+    }*/
+    public function showSingleAlbum($albumId)
+    {
+        $album = new AlbumController();
+        $albumName = $album->getAlbumNameById($albumId);
+
+        if($albumName){
+            $album->setAlbumID($albumId); //for image upload
+            $this->layout->content = View::make('singlealbum', array('albumId' => $albumId));
+        }
+        else
+            $this->layout->content = View::make('404');
+        //$this->layout->content->albumId = $albumId;
+/*
+        $this->layout->content->photoName = Input::old('photoName');
+        $this->layout->content->shortDescription = Input::old('shDescription');
+        $this->layout->content->placeTaken = Input::old('place');
+        $this->layout->content->titlePhoto = Input::old('titlePhoto');*/
     }
+
     public function showSinglePhoto() {
         $this->layout->content = View::make('singlephoto');
     }

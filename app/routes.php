@@ -12,35 +12,36 @@
 */
 
 // Show main page
-Route::get('/', 'HomeController@showMain');
+Route::get('/', 'HomeController@showHome');
 
 // Show user profile page
 Route::get('/profile', 'HomeController@showProfile');
 
+// Show albums page
 Route::get('/albums', 'HomeController@showAlbums');
-Route::get('/singlealbum', 'HomeController@showSingleAlbum');
+Route::post('albums-get', array(
+    'uses' => 'AlbumsController@getData',
+    'as' => 'albums.get'
+));
+
+// Show single album page
+//Route::get('/singlealbum', 'HomeController@showSingleAlbum');
+Route::get('albums/{albumId}', 'HomeController@showSingleAlbum');
+Route::post('upload-photo-to-album', array(
+    'uses' => 'AlbumController@getData',
+    'as' => 'photo.upload'
+));
+
 Route::get('/singlephoto', 'HomeController@showSinglePhoto');
 
 // Show login page
 Route::get('login', 'HomeController@showLogin');
-Route::post('login', function() {
-    // get POST data
-    $userdata = array(
-        'username'      => Input::get('username'),
-        'password'      => Input::get('password')
-    );
+Route::post('login', array(
+    'uses' => 'LoginController@authLogin',
+    'as' => 'login'
+));
 
-    if ( Auth::attempt($userdata) )
-    {
-        // logged in, go to home
-        return Redirect::to('/');
-    }
-    else
-    {
-        // auth failure, go back to the login
-        return Redirect::to('login')->with('login_errors', true);
-    }
-});
+// Logout route
 Route::get('logout', function() {
     Auth::logout();
     return Redirect::to('login');
