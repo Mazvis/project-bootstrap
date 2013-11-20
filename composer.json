@@ -6,6 +6,7 @@
 	"require": {
 		"laravel/framework": "4.0.*",
 		"barryvdh/laravel-ide-helper": "1.*"
+        "machuga/authority" : "dev-master"
 	},
 	"autoload": {
 		"classmap": [

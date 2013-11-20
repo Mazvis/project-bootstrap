@@ -15,7 +15,7 @@ class HomeController extends BaseController {
      */
 
     /**
-     * Show home page
+     * Show home page.
      */
     public function showHome() {
         $this->layout->content = View::make('home');
@@ -33,39 +33,60 @@ class HomeController extends BaseController {
         $this->layout->content = View::make('profile');
     }
 
+    /**
+     * Show the login page.
+     */
     public function showLogin() {
         $this->layout->content = View::make('login');
     }
 
+    /**
+     * Show the all albums page.
+     */
     public function showAlbums() {
         $this->layout->content = View::make('albums');
     }
 
-    /*public function showSingleAlbum() {
-        $this->layout->content = View::make('singlealbum');
-    }*/
+    /**
+     * Show the album page.
+     */
     public function showSingleAlbum($albumId)
     {
         $album = new AlbumController();
         $albumName = $album->getAlbumNameById($albumId);
 
         if($albumName){
-            $album->setAlbumID($albumId); //for image upload
             $this->layout->content = View::make('singlealbum', array('albumId' => $albumId));
+            $this->layout->content->albumId = $albumId;
+
+            $this->layout->content->album_photos_info_array = $album->getPhotos($albumId);
+            $this->layout->content->album_info_array = $album->getAlbumTitlePhotoUrlById($albumId);
+
+            $this->layout->content->likes_array = $album->getlikesArray($albumId);
+            $this->layout->content->comments_array = $album->getCommentsArray($albumId);
         }
         else
-            $this->layout->content = View::make('404');
-        //$this->layout->content->albumId = $albumId;
-/*
-        $this->layout->content->photoName = Input::old('photoName');
-        $this->layout->content->shortDescription = Input::old('shDescription');
-        $this->layout->content->placeTaken = Input::old('place');
-        $this->layout->content->titlePhoto = Input::old('titlePhoto');*/
+            $this->showNotFoundPage();
     }
 
+    /**
+     * Show the photo page.
+     */
     public function showSinglePhoto() {
         $this->layout->content = View::make('singlephoto');
     }
 
+    /**
+     * Show the 404 page.
+     */
+    public function showNotFoundPage() {
+        $this->layout->content = View::make('404');
+    }
+// other
+    public function showPhotos() {
+
+        $home = new Home;
+        return $home->getPhotosJson();
+    }
 
 }

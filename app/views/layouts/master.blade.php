@@ -11,6 +11,8 @@
         <!-- Style css-->
         {{ HTML::style('assets/css/style.css') }}
 
+        {{ HTML::script('js/jquery-1.10.2.min.js') }}
+
     </head>
 
     <body class="{{ $bodyclass }}">
@@ -30,14 +32,20 @@
                 <div class="navigation_left_item">
                     {{ HTML::link('/', 'Home') }}
                 </div>
+                <div class="navigation_left_item">
+                    {{ HTML::link('/albums', 'All albums') }}
+                </div>
                 <div class="navigation_left_item open">
                     {{ HTML::link('/albums', 'Albums') }}
                     <ul class="subMenu">
                         <li>
-                            {{ HTML::link('/singlealbum', 'album1') }}
+                            {{ HTML::link('/albums/1', 'album1') }}
                         </li>
                         <li>
-                            {{ HTML::link('/singlealbum', 'album2') }}
+                            {{ HTML::link('/albums/2', 'album2') }}
+                        </li>
+                        <li>
+                            {{ HTML::link('/albums/3', 'album3') }}
                         </li>
                     </ul>
                 </div>
@@ -56,7 +64,6 @@
             </div>
 
         <!-- Scripts -->
-        {{ HTML::script('js/jquery-1.10.2.min.js') }}
         {{ HTML::script('js/script.js') }}
 
     </body>
