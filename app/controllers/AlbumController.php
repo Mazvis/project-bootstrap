@@ -17,17 +17,17 @@ class AlbumController extends BaseController {
             $placeTaken = Input::get('placeTaken');
 
             $photoFile = null;
-            //if (Input::hasFile('photos'))
-                $photoFile = Input::get('photos');
+            if (Input::hasFile('photos'))
+                $photoFile = Input::file('photos');
 
             $titlePhoto = Input::get('titlePhoto');
 
             $album = new Album;
-            //$album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $photoFile, $titlePhoto);
-            return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
+            $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $photoFile, $titlePhoto);
+            //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
             //return Redirect::to('albums/'.$currentAlbumId);
         }
-        //return Redirect::to('albums/'.$currentAlbumId);
+        return Redirect::to('albums/'.$currentAlbumId);
         //return $this->getPhotos($currentAlbumId);
     }
 

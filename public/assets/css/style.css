@@ -310,3 +310,10 @@ img{}.img_vienas{ width:300; height:300;}
 span{color: green; font-size:20px; font-weight:bold;}
 b{color: green;}
 #user{color: darkblue;}
+
+.form-active {
+    display: inherit;
+}
+.form-hidden {
+    display: none;
+}

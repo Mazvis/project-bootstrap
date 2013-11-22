@@ -13,9 +13,13 @@
         <p>Title photo: {{ $album_info_array['album_title_photo_id'] }}</p>
         <p>Album fool description: {{ $album_info_array['album_full_description'] }}</p>
         <p>Album photos count: {{ $album_info_array['album_photos_count'] }}</p>
+
+
         <li><input id="upload-button" type="submit" value="Upload"\></li>
         <li><input id="edit-button" type="submit" value="EDIT"\></li>
         <li data-albumid="{{ $album_info_array['album_id'] }}"><input id="delete-album"type="submit" value="DELETE ALBUM"\></li>
+
+
     </div>
 
     <div class="clear"></div>
@@ -24,7 +28,7 @@
 
 <div class="image-navigation" style="border: 1px solid red">
     <b>Edit:</b>
-    {{ Form::open(array('route' => 'album.edit', 'files'=> true, 'method' => 'post', 'id' => 'edit')) }}
+    {{ Form::open(array('route' => 'album.edit', 'files'=> true, 'method' => 'post', 'id' => 'edit-form', 'class' => 'form-hidden')) }}
 
     {{ Form::hidden('albumId', $albumId)}}
 
@@ -51,8 +55,8 @@
 
 <div class="image-navigation" style="border: 1px solid red">
     <b>Upload:</b>
-    {{--Form::open(array('route' => 'photo.upload', 'files'=> true, 'method' => 'post', 'id' => 'upload'))--}}
-    <form method="POST" action="javascript:;" accept-charset="UTF-8" id="upload" enctype="multipart/form-data" style="display: inherit;">
+    {{ Form::open(array('route' => 'photo.upload', 'files'=> true, 'method' => 'post', 'id' => 'upload-form', 'class' => 'form-hidden')) }}
+    <!--<form method="POST" action="javascript:;" accept-charset="UTF-8" id="upload" enctype="multipart/form-data" style="display: inherit;">-->
 
     {{ Form::hidden('albumId', $albumId)}}
 

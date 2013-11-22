@@ -6,17 +6,17 @@ class Album extends Eloquent{
 
         // upload photo to server
         $filename = "";
-        //if ($photoFile != null){
+        if ($photoFile != null){
             $file = $photoFile;
 
             $destinationPath = 'uploads/'.$currentUserID.'/albums/'.$currentAlbumId;
 
-            //$filename = $file->getClientOriginalName();
-            $filename = basename($file);
-            //$extension = $file->getClientOriginalExtension();
+            $filename = $file->getClientOriginalName();
+            //$filename = basename($file);
+            $extension = $file->getClientOriginalExtension();
 
-            //$upload_success = $photoFile->move($destinationPath, $filename);
-            move_uploaded_file($file, $destinationPath);
+            $upload_success = $photoFile->move($destinationPath, $filename);
+            //move_uploaded_file($file, $destinationPath);
             /*if( $upload_success ) {
                 return Response::json('success', 200);
             } else {
@@ -62,7 +62,7 @@ class Album extends Eloquent{
                     ->where('album_id', $currentAlbumId)
                     ->update(array('album_title_photo_id' => $insertedPhotoId));
 
-        //}
+        }
         //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$filename.$extension.$titlePhoto;
     }
 
