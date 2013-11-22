@@ -1,12 +1,12 @@
-jQuery(document).ready(function(){
+(function($){
     //comment
-    jQuery('body').delegate(".album-comment-button", "click",function () {
-        jQuery.ajax({
+    $('body').delegate(".album-comment-button", "click",function () {
+        $.ajax({
             type: "POST",
             url: '../comment-in-album',
             data: {
-                albumId: jQuery('input[name="albumId"]').val(),
-                comment: jQuery('input[name="comment"]').val()
+                albumId: $('input[name="albumId"]').val(),
+                comment: $('input[name="comment"]').val()
             }
         }).done(function( msg ) {
                 //alert(msg);
@@ -15,12 +15,12 @@ jQuery(document).ready(function(){
     });
 
     //like album
-    jQuery('body').delegate(".album-like-button", "click",function () {
-        jQuery.ajax({
+    $('body').delegate(".album-like-button", "click",function () {
+        $.ajax({
              type: "POST",
              url: '../like-album',
              data: {
-                albumId: jQuery('input[name="albumId"]').val()
+                albumId: $('input[name="albumId"]').val()
              }
         }).done(function( msg ) {
                 //alert(msg);
@@ -28,9 +28,9 @@ jQuery(document).ready(function(){
     });
 
     //delete photo
-    jQuery('body').delegate("#delete-photo", "click",function () {
+    $('body').delegate("#delete-photo", "click",function () {
         var photoIdToDelete = $(this).parents('.photo-link').data('id');
-        jQuery.ajax({
+        $.ajax({
             type: "POST",
             url: '../delete-photo',
             data: {
@@ -39,15 +39,15 @@ jQuery(document).ready(function(){
         }).done(function( msg ) {
                 //alert(msg);
                 //window.location.reload();
-                jQuery('.alert-messege').html(msg);
+                $('.alert-messege').html(msg);
             });
     });
 
     //delete album
-    jQuery('body').delegate("#delete-album", "click",function () {
+    $('body').delegate("#delete-album", "click",function () {
         var done = true;
         var albumIdToDelete = $(this).parents('li').data('albumid');
-        jQuery.ajax({
+        $.ajax({
             type: "POST",
             url: '../delete-album(temporary)',
             data: {
@@ -56,18 +56,18 @@ jQuery(document).ready(function(){
         }).done(function( msg ) {
                 //alert(msg);
                 //window.location.reload();
-                jQuery('.alert-messege').html(msg);
+                $('.alert-messege').html(msg);
             });
     });
 
     //for forms displaying
     $('#edit-button').click(function () {
-        jQuery('#edit-form').removeClass('form-hidden');
-        jQuery('#upload-form').addClass('form-hidden');
+        $('#edit-form').removeClass('form-hidden');
+        $('#upload-form').addClass('form-hidden');
     });
     $('#upload-button').click(function () {
-        jQuery('#upload-form').removeClass('form-hidden');
-        jQuery('#edit-form').addClass('form-hidden');
+        $('#upload-form').removeClass('form-hidden');
+        $('#edit-form').addClass('form-hidden');
     });
 
-});
+})(jQuery);
