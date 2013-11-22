@@ -39,14 +39,15 @@ Route::post('edit-album-info', array(
     'uses' => 'AlbumController@editAlbum',
     'as' => 'album.edit'
 ));
-Route::post('comment-album', array(
+/*Route::post('comment-album', array(
     'uses' => 'AlbumController@editAlbum',
     'as' => 'album.comment'
-));
+));*/
 //Ajax
 Route::post('delete-photo', 'AlbumController@deletePhoto');
 Route::post('delete-album', 'AlbumController@deleteAlbum');
 Route::post('like-album', 'AlbumController@makeLike');
+Route::post('comment-in-album', 'AlbumController@writeComment');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show single photo page
 Route::get('/singlephoto', 'HomeController@showSinglePhoto');

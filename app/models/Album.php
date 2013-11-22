@@ -6,15 +6,17 @@ class Album extends Eloquent{
 
         // upload photo to server
         $filename = "";
-        if ($photoFile != null){
+        //if ($photoFile != null){
             $file = $photoFile;
 
             $destinationPath = 'uploads/'.$currentUserID.'/albums/'.$currentAlbumId;
 
-            $filename = $file->getClientOriginalName();
-            $extension = $file->getClientOriginalExtension();
+            //$filename = $file->getClientOriginalName();
+            $filename = basename($file);
+            //$extension = $file->getClientOriginalExtension();
 
-            $upload_success = $photoFile->move($destinationPath, $filename);
+            //$upload_success = $photoFile->move($destinationPath, $filename);
+            move_uploaded_file($file, $destinationPath);
             /*if( $upload_success ) {
                 return Response::json('success', 200);
             } else {
@@ -60,7 +62,7 @@ class Album extends Eloquent{
                     ->where('album_id', $currentAlbumId)
                     ->update(array('album_title_photo_id' => $insertedPhotoId));
 
-        }
+        //}
         //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$filename.$extension.$titlePhoto;
     }
 
@@ -148,6 +150,7 @@ class Album extends Eloquent{
         $mas = null;
         $mas['album_title_photo_id'] = null;
 
+
         foreach ($all as $all2){
             $mas['album_id'] = $all2->album_id;
             $mas['album_name'] = $all2->album_name;
@@ -157,6 +160,10 @@ class Album extends Eloquent{
             $mas['album_created_at'] = $all2->album_created_at;
             $mas['album_title_photo_id'] = $all2->album_title_photo_id;
         }
+
+        $photos = DB::select('select count(*) as sum from photos where album_id = ?', array($albumId));
+        foreach ($photos as $photo)
+            $mas['album_photos_count'] = $photo->sum;
 
         //default
         $mas['photo_destination_url'] = "uploads/1.jpg"; //no image need to upload
@@ -202,6 +209,18 @@ class Album extends Eloquent{
         return $names;
     }
 
+    public function getAllLikesCount($albumId){
+        $likes = DB::table('likes')->where('album_id', $albumId)->get();
+        $count = 0;
+        foreach ($likes as $like){
+            $count++;
+        }
+
+        return $count;
+    }
+
+
+
     public function makeLike($albumId, $currentUserID){
         //$likes = DB::table('likes')->where('album_id', $albumId)->where('user_id', $currentUserID)->get();
         $likes = DB::select('select * from likes where album_id = ? and user_id = ?', array($albumId, $currentUserID));
@@ -221,6 +240,24 @@ class Album extends Eloquent{
         return $currentUserID;
     }
 
+    public function makeLikeWithIp($albumId, $likerIp){
+        $likes = DB::select('select * from likes where album_id = ? and liker_ip = ?', array($albumId, $likerIp));
+        $mas = null;
+        foreach ($likes as $like)
+            $mas = $like->liker_id;
+
+        if(!$mas){
+            DB::table('likes')->insert(
+                array(
+                    'album_id' => $albumId,
+                    'liker_ip' => $likerIp,
+                )
+            );
+        }
+
+        return $likerIp;
+    }
+
     /*
      * Comments
      */
@@ -237,22 +274,30 @@ class Album extends Eloquent{
             $mas[$i]['user_id'] = $comment->user_id;
             $mas[$i]['commenter_ip'] = $comment->commenter_ip;
 
-            $users = DB::table('users')->where('id', $mas[$i]['user_id'])->get();
-            foreach ($users as $user)
-                $mas[$i]['username'] = $user->username;
+            if($mas[$i]['user_id']){
+                $users = DB::table('users')->where('id', $mas[$i]['user_id'])->get();
+                foreach ($users as $user)
+                    $mas[$i]['username'] = $user->username;
+            }
+            else
+                $mas[$i]['username'] = 'Unknown';
             $i++;
         }
 
         return $mas;
     }
 
-    public function writeComment($currentAlbumId, $currentUserID, $posterIp){
-        DB::table('likes')->insert(
+    public function writeComment($comment, $currentAlbumId, $currentUserID, $posterIp){
+
+        DB::table('comments')->insert(
             array(
-                'album_id' => $albumId,
+                'comment' => $comment,
+                'album_id' => $currentAlbumId,
                 'user_id' => $currentUserID,
+                'commenter_ip' => $posterIp,
             )
         );
-        return $currentUserID;
+
+        return $comment;
     }
 }

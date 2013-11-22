@@ -62,6 +62,7 @@ class HomeController extends BaseController {
             $this->layout->content->album_photos_info_array = $album->getPhotos($albumId);
             $this->layout->content->album_info_array = $album->getAlbumTitlePhotoUrlById($albumId);
 
+            $this->layout->content->all_likes_count = $album->getAllLikesCount($albumId);
             $this->layout->content->likes_array = $album->getlikesArray($albumId);
             $this->layout->content->comments_array = $album->getCommentsArray($albumId);
         }

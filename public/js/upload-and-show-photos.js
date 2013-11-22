@@ -53,25 +53,26 @@ jQuery(document).ready(function(){
         jQuery('#friend-search').addClass('loading');
     });*/
     $('#upload').submit(function(){
-        /*alert(jQuery('input[name="albumId"]').val()+
-            jQuery('input[name="photoName"]').val()+
-            jQuery('input[name="shDescription"]').val()+
-            jQuery('input[name="placeTaken"]').val()+
-            jQuery('input[name="photos"]').val()+
-            $('#titlePhoto').prop('checked')
-        );*/
+        //var phot = new String(jQuery('input[name="photos"]').val());
+        //$('.aaa').html(phot);
+        //var photo = $('.aaa').html();
+        var photo = new FormData($(this)[5]);
+        //alert(photo);
         jQuery.ajax({
             type: "POST",
             url: '../upload-and-show-photos',
+            xhrFields: {
+                withCredentials: true
+            },
             data: {
                 albumId: jQuery('input[name="albumId"]').val(),
                 photoName: jQuery('input[name="photoName"]').val(),
                 shDescription: jQuery('input[name="shDescription"]').val(),
                 placeTaken: jQuery('input[name="placeTaken"]').val(),
-                photos: jQuery('input[name="photos"]').val(),
+                photos: photo,
                 titlePhoto: $('#titlePhoto').prop('checked')
-            }
-        }).done(function( msg ) {
+                }
+            }).done(function( msg ) {
                 alert(msg);
                 //window.location.reload();
                 //jQuery('#photos').html(msg);
@@ -100,6 +101,20 @@ jQuery(document).ready(function(){
             });*/
     });
 /**********************************************************************************************************************/
+    //comment
+    jQuery('body').delegate(".album-comment-button", "click",function () {
+        jQuery.ajax({
+            type: "POST",
+            url: '../comment-in-album',
+            data: {
+                albumId: jQuery('input[name="albumId"]').val(),
+                comment: jQuery('input[name="comment"]').val()
+            }
+        }).done(function( msg ) {
+                alert(msg);
+            });
+    });
+
     //like album
     jQuery('body').delegate(".album-like-button", "click",function () {
         jQuery.ajax({

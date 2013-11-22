@@ -12,6 +12,7 @@
         <p>Created at: {{ $album_info_array['album_created_at'] }}</p>
         <p>Title photo: {{ $album_info_array['album_title_photo_id'] }}</p>
         <p>Album fool description: {{ $album_info_array['album_full_description'] }}</p>
+        <p>Album photos count: {{ $album_info_array['album_photos_count'] }}</p>
         <li><input id="upload-button" type="submit" value="Upload"\></li>
         <li><input id="edit-button" type="submit" value="EDIT"\></li>
         <li data-albumid="{{ $album_info_array['album_id'] }}"><input id="delete-album"type="submit" value="DELETE ALBUM"\></li>
@@ -50,8 +51,8 @@
 
 <div class="image-navigation" style="border: 1px solid red">
     <b>Upload:</b>
-    {{ Form::open(array('route' => 'photo.upload', 'files'=> true, 'method' => 'post', 'id' => 'upload')) }}
-    <!--<form method="POST" action="javascript:;" accept-charset="UTF-8" id="upload" enctype="multipart/form-data" style="display: inherit;"> -->
+    {{--Form::open(array('route' => 'photo.upload', 'files'=> true, 'method' => 'post', 'id' => 'upload'))--}}
+    <form method="POST" action="javascript:;" accept-charset="UTF-8" id="upload" enctype="multipart/form-data" style="display: inherit;">
 
     {{ Form::hidden('albumId', $albumId)}}
 
@@ -77,6 +78,7 @@
 </div>
 
 </br></br>
+<div class="aaa"></div>
 
 <div id="photos">
     @for ($i = 0; $i < sizeOf($album_photos_info_array); $i++)
@@ -96,7 +98,7 @@
     <span>comments:</span>
     <div class='div_komentaro_blokas'>
         <p>{{ Form::submit('Like', array('class' => 'album-like-button')) }}</p>
-        <p>{{ sizeOf($likes_array) }}</p>
+        <p>{{ $all_likes_count }}</p>
         @for ($i = 0; $i < sizeOf($likes_array); $i++)
             {{ $likes_array[$i] }},
         @endfor
@@ -120,7 +122,7 @@
             <div class="div_komentaro_pav">
                 *
             </div>
-            {{ Form::open(array('route' => 'album.comment', 'method' => 'post', 'id' => 'comment-album')) }}
+            {{--Form::open(array('route' => 'album.comment', 'method' => 'post', 'id' => 'comment-album'))--}}
                 <div class="div_komentaras_irasas">
                     {{ Form::text('comment', 'write here', array('class' => 'komentaras')) }}
                 </div>
@@ -129,13 +131,13 @@
                     </div>
                     <div class="div_kom_submitR">
 
-                        {{ Form::submit('Comment', array('class' => 'komentuoti_mygtukas')) }}
+                        {{ Form::submit('Comment', array('class' => 'album-comment-button')) }}
                     </div>
                     <div class="div_kom_submitC">
                     </div>
                 </div>
-            {{ Form::token() }}
-            {{ Form::close() }}
+            {{--Form::token()--}}
+            {{--Form::close()--}}
         </div>
 
 </div>

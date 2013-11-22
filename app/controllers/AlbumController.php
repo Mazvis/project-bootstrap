@@ -17,17 +17,17 @@ class AlbumController extends BaseController {
             $placeTaken = Input::get('placeTaken');
 
             $photoFile = null;
-            if (Input::hasFile('photos'))
-                $photoFile = Input::file('photos');
+            //if (Input::hasFile('photos'))
+                $photoFile = Input::get('photos');
 
             $titlePhoto = Input::get('titlePhoto');
 
             $album = new Album;
-            $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $photoFile, $titlePhoto);
-            //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
+            //$album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $photoFile, $titlePhoto);
+            return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
             //return Redirect::to('albums/'.$currentAlbumId);
         }
-        return Redirect::to('albums/'.$currentAlbumId);
+        //return Redirect::to('albums/'.$currentAlbumId);
         //return $this->getPhotos($currentAlbumId);
     }
 
@@ -94,8 +94,19 @@ class AlbumController extends BaseController {
         $album = new Album();
         return $album->getlikesArray($albumId);
     }
+    public function getAllLikesCount($albumId){
+        $album = new Album();
+        return $album->getAllLikesCount($albumId);
+    }
 
     public function makeLike(){
+        if(Auth::check())
+            return $this->makeALike();
+        else
+            return $this->makeLikeWithIp();
+    }
+
+    public function makeALike(){
         $album = new Album();
         $currentAlbumId = Input::get('albumId');
         if(Auth::check()){
@@ -104,6 +115,15 @@ class AlbumController extends BaseController {
         }
         //return Request::getClientIp(); //getenv("REMOTE_ADDR");
     }
+
+    public function makeLikeWithIp(){
+        $album = new Album();
+        $currentAlbumId = Input::get('albumId');
+        $likerIp = Request::getClientIp();
+
+        return $album->makeLikeWithIp($currentAlbumId, $likerIp);
+    }
+
     /*
      * Comments
      */
@@ -115,13 +135,14 @@ class AlbumController extends BaseController {
     public function writeComment(){
         $album = new Album();
 
-        $currentUserID = 0;
+        $currentUserID = null;
         if(Auth::check())
             $currentUserID = Auth::user()->id;
+
         $currentAlbumId = Input::get('albumId');
+        $comment = Input::get('comment');
         $posterIp = Request::getClientIp();
 
-        $currentUserID = Auth::user()->id;
-        return $album->writeComment($currentAlbumId, $currentUserID, $posterIp);
+        return $album->writeComment($comment, $currentAlbumId, $currentUserID, $posterIp);
     }
 }
