@@ -52,6 +52,7 @@ class HomeController extends BaseController {
      */
     public function showSingleAlbum($albumId)
     {
+        $photo = new PhotoController();
         $album = new AlbumController();
         $albumName = $album->getAlbumNameById($albumId);
 
@@ -65,6 +66,8 @@ class HomeController extends BaseController {
             $this->layout->content->all_likes_count = $album->getAllLikesCount($albumId);
             $this->layout->content->likes_array = $album->getlikesArray($albumId);
             $this->layout->content->comments_array = $album->getCommentsArray($albumId);
+
+            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
         }
         else
             $this->showNotFoundPage();
@@ -73,8 +76,43 @@ class HomeController extends BaseController {
     /**
      * Show the photo page.
      */
-    public function showSinglePhoto() {
-        $this->layout->content = View::make('singlephoto');
+    public function showSinglePhoto($albumId, $photoId) {
+
+        //$album = new AlbumController();
+        //$albumName = $album->getAlbumNameById($albumId);
+
+        $photo = new PhotoController();
+        $photoName = $photo->getPhotoNameByAlbumAndPhotoId($albumId,$photoId);
+        if($photoName){
+            $this->layout->content = View::make('singlephoto', array('albumId' => $albumId, 'photoId' => $photoId));
+
+            $this->layout->content->photo_data_array = $photo->getPhotoData($photoId);
+
+            $this->layout->content->all_likes_count = $photo->getAllLikesCount($photoId);
+            $this->layout->content->likes_data = $photo->getLikesArray($photoId);
+            $this->layout->content->comments_array = $photo->getCommentsArray($photoId);
+
+            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+            $this->layout->content->tags = $photo->getTagsData($photoId);
+        }
+        else
+            $this->showNotFoundPage();
+    }
+
+    /*
+     * Show tag page
+     */
+    public function showTagPage($tagName) {
+        $photo = new PhotoController();
+        $tagId = $photo->getTagId($tagName);
+        //if this tag exists:
+        if($tagId){
+            $this->layout->content = View::make('tag', array('tagName' => $tagName));
+            $this->layout->content->tagId = $tagId;
+            $this->layout->content->photo_data_array = $photo->getPhotoDataByTag($tagId);
+        }
+        else
+            $this->showNotFoundPage();
     }
 
     /**

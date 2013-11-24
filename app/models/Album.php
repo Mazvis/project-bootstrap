@@ -2,7 +2,7 @@
 
 class Album extends Eloquent{
 
-    public function uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $photoFile, $titlePhoto){
+    public function uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFile, $titlePhoto){
 
         // upload photo to server
         $filename = "";
@@ -25,7 +25,8 @@ class Album extends Eloquent{
 
             //make: if this albumId exist in albums table do this insert
             //upload photo in database
-            DB::table('photos')->insert(
+            //DB::table('photos')->insert(
+            $insertedPhotoId = DB::table('photos')->insertGetId(
                 array('photo_name' => $photoName,
                     'photo_short_description' => $shortDescription,
                     'photo_taken_at' => $placeTaken,
@@ -35,6 +36,16 @@ class Album extends Eloquent{
                     'user_id' => $currentUserID,
                 )
             );
+
+            //deletes old tags ant insert new
+            //DB::table('photo_tags')->where('photo_id', $insertedPhotoId)->delete();
+            for($i = 0; $i < sizeOf($selectedTags); $i++)
+                DB::table('photo_tags')->insert(
+                    array(
+                        'photo_id' => $insertedPhotoId,
+                        'tag_id' => (int)$selectedTags[$i],
+                    )
+                );
 
             $sth = DB::table('albums')->where('album_id', $currentAlbumId)->get();
             $oldTitleId = null;

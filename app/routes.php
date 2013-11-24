@@ -39,11 +39,6 @@ Route::post('edit-album-info', array(
     'uses' => 'AlbumController@editAlbum',
     'as' => 'album.edit'
 ));
-/*
-Route::post('comment-album', array(
-    'uses' => 'AlbumController@editAlbum',
-    'as' => 'album.comment'
-));*/
 //Ajax
 Route::post('delete-photo', 'AlbumController@deletePhoto');
 Route::post('delete-album', 'AlbumController@deleteAlbum');
@@ -51,7 +46,19 @@ Route::post('like-album', 'AlbumController@makeLike');
 Route::post('comment-in-album', 'AlbumController@writeComment');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show single photo page
-Route::get('/singlephoto', 'HomeController@showSinglePhoto');
+Route::get('albums/{albumId}/photo/{photoId}', 'HomeController@showSinglePhoto');
+Route::post('edit-photo-info', array(
+    'uses' => 'PhotoController@editPhoto',
+    'as' => 'photo.edit'
+));
+//Ajax
+Route::post('like-photo', 'PhotoController@makeLike');
+Route::post('comment-in-photo', 'PhotoController@writeComment');
+Route::post('delete-photo-from-album', 'PhotoController@deletePhoto');
+/*--------------------------------------------------------------------------------------------------------------------*/
+//Show tag page
+Route::get('tag/{tagName}', 'HomeController@showTagPage');
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show login page
 Route::get('login', 'HomeController@showLogin');

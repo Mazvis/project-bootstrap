@@ -15,6 +15,7 @@ class AlbumController extends BaseController {
             $photoName = Input::get('photoName');
             $shortDescription = Input::get('shDescription');
             $placeTaken = Input::get('placeTaken');
+            $selectedTags = Input::get('tags');
 
             $photoFile = null;
             if (Input::hasFile('photos'))
@@ -23,7 +24,7 @@ class AlbumController extends BaseController {
             $titlePhoto = Input::get('titlePhoto');
 
             $album = new Album;
-            $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $photoFile, $titlePhoto);
+            $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFile, $titlePhoto);
             //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
             //return Redirect::to('albums/'.$currentAlbumId);
         }

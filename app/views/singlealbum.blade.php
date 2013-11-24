@@ -69,6 +69,9 @@
     <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
     <p>{{ Form::text('placeTaken') }}</p>
 
+    <p>{{ Form::label('tags', 'add tags') }}</p>
+    <p>{{ Form::select('tags[]', $allExistingTags, null, array('multiple'=>true, 'id' => 'tags')) }}</p>
+
     <p>{{ Form::file('photos', array('multiple'=>true, 'id' => 'photos_id')) }}</p>
 
     <p>{{ Form::label('titlePhoto', 'Make album title photo?') }}</p>
@@ -87,7 +90,7 @@
 <div id="photos">
     @for ($i = 0; $i < sizeOf($album_photos_info_array); $i++)
     <div class="photo-link" data-id="{{ $album_photos_info_array[$i]['photo_id'] }}">
-        <a href="{{ URL::to($album_photos_info_array[$i]['photo_destination_url']) }}">
+        <a href="{{ URL::to('albums/'.$albumId.'/photo/'.$album_photos_info_array[$i]['photo_id']) }}">
             <img src="{{ URL::to($album_photos_info_array[$i]['photo_destination_url']) }}" alt="First">
         </a>
         <p><input id="delete-photo" type="submit" value="DELETE"\></p>

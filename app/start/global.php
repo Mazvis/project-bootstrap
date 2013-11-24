@@ -51,6 +51,8 @@ Log::useDailyFiles(storage_path().'/logs/'.$logFile);
 App::error(function(Exception $exception, $code)
 {
 	Log::error($exception);
+    //$home = new HomeController();
+    //$home->showNotFoundPage();
 });
 
 /*
