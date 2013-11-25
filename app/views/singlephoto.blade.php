@@ -13,6 +13,7 @@
         <p>Photo description {{ $photo_data_array['photo_short_description'] }}</p>
         <p>Author: {{ $photo_data_array['photo_user_name'] }}</p>
         <p>Tags: @for ($i = 0; $i < sizeOf($tags); $i++) {{ HTML::link('tag/'.$tags[$i], $tags[$i]) }}, @endfor</p>
+        <p>Views: {{ $viewsCount }}</p>
 
         <li><input id="edit-button" type="submit" value="EDIT"\></li>
         <li data-photoid="{{ $photo_data_array['photo_id'] }}"><input id="delete-single-photo" type="submit" value="DELETE THIS PHOTO FROM ALBUM"\></li>

@@ -129,4 +129,12 @@ class PhotoController extends BaseController {
         $photo = new Photo;
         return $photo->getPhotoDataByTag($tag_id);
     }
+
+    /*
+     * Views
+     */
+    public function countViews($photoId){
+        $photo = new Photo();
+        return $photo->countViews($photoId);
+    }
 }

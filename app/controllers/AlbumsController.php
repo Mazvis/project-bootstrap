@@ -3,17 +3,26 @@
 class AlbumsController extends BaseController {
 
     public function getData() {
-        /*$currentUserId = Auth::user()->id;
-        if(!$albumName)
-            return "";*/
 
-        $albumName = Input::get('name');
-        $shortDescription = Input::get('shDescription');
-        $fullDescription = Input::get('description');
-        $placeTaken = Input::get('place');
+        if(Auth::user()){
+            $currentUserId = Auth::user()->id;
 
-        $albums = new Albums;
-        return $albums->createAlbum($albumName, $shortDescription, $fullDescription, $placeTaken);
+
+            $albumName = Input::get('name');
+            $shortDescription = Input::get('shDescription');
+            $fullDescription = Input::get('description');
+            $placeTaken = Input::get('place');
+
+            $albums = new Albums;
+            $albums->createAlbum($currentUserId, $albumName, $shortDescription, $fullDescription, $placeTaken);
+        }
+        return Redirect::back();
     }
+
+    public function getAlbumsData(){
+        $albums = new Albums();
+        return $albums->getAlbumsData();
+    }
+
 
 }

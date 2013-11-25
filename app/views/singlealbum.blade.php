@@ -1,4 +1,4 @@
-<h1>Album1(<a href="">upload photo</a>)</h1>
+<h1>{{ $album_info_array['album_name'] }}</h1>
 
 <div class="image-navigation" style="padding-left: 0; padding-top: 0;">
 
@@ -12,6 +12,7 @@
         <p>Created at: {{ $album_info_array['album_created_at'] }}</p>
         <p>Title photo: {{ $album_info_array['album_title_photo_id'] }}</p>
         <p>Album fool description: {{ $album_info_array['album_full_description'] }}</p>
+        <p>Views: {{ $viewsCount }}</p>
         <p>Album photos count: {{ $album_info_array['album_photos_count'] }}</p>
 
 

@@ -24,58 +24,19 @@
 
 </br></br>
 
-<div class="photo-link">
-    <p><a href="">Album1</a></p>
-    <a href="" class="photo-link">
-        <img src="uploads/1.jpg" alt="First">
-    </a>
-    <p>short description</p>
-    <p><input type="submit" value="DELETE"\></p>
+<div id="albums">
+    @for ($i = 0; $i < sizeOf($album_photos_info_array); $i++)
+    <div class="photo-link data-id="{{ $album_photos_info_array[$i]['album_id'] }}">
+        <p>{{ HTML::link('albums/'.$album_photos_info_array[$i]['album_id'], $album_photos_info_array[$i]['album_name']) }}</p>
+        <a href="{{ URL::to('albums/'.$album_photos_info_array[$i]['album_id']) }}" class="photo-link">
+            <img src="{{ URL::to($album_photos_info_array[$i]['photo_destination_url']) }}" alt="First">
+        </a>
+        <p>{{ $album_photos_info_array[$i]['album_short_description'] }}</p>
+        <p><input id="delete-album" type="submit" value="DELETE"\></p>
+    </div>
+    @endfor
+
+    <div class="clear"></div>
 </div>
 
-<div class="photo-link">
-    <p><a href="">Album2</a></p>
-    <a href="" class="photo-link">
-        <img src="uploads/4.jpg" alt="First">
-    </a>
-    <p>short description</p>
-    <p><input type="submit" value="DELETE"\></p>
-</div>
-
-<div class="photo-link">
-    <p><a href="">Album3</a></p>
-    <a href="" class="photo-link">
-        <img src="uploads/3.jpg" alt="First">
-    </a>
-    <p>short description</p>
-    <p><input type="submit" value="DELETE"\></p>
-</div>
-
-<div class="photo-link">
-    <p><a href="">Album4</a></p>
-    <a href="" class="photo-link">
-        <img src="uploads/1.jpg" alt="First">
-    </a>
-    <p>short description</p>
-    <p><input type="submit" value="DELETE"\></p>
-</div>
-
-<div class="photo-link">
-    <p><a href="">Album5</a></p>
-    <a href="" class="photo-link">
-        <img src="uploads/3.jpg" alt="First">
-    </a>
-    <p>short description</p>
-    <p><input type="submit" value="DELETE"\></p>
-</div>
-
-<div class="photo-link">
-    <p><a href="">Album6</a></p>
-    <a href="" class="photo-link">
-        <img src="uploads/4.jpg" alt="First">
-    </a>
-    <p>short description</p>
-    <p><input type="submit" value="DELETE"\></p>
-</div>
-
-<div class="clear"></div>
+{{ HTML::script('js/upload-and-show-photos.js') }}

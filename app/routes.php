@@ -13,11 +13,8 @@
 
 // Show home page
 Route::get('/', 'HomeController@showHome');
-// For home page AJAX query
-Route::post('show-photos', array(
-    'uses' => 'HomeController@showPhotos',
-    'as' => 'home.photos'
-));
+//Ajax query
+Route::post('show-photos', 'HomeController@showPhotos');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show user profile page
 Route::get('/profile', 'HomeController@showProfile');

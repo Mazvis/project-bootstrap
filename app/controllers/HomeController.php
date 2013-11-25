@@ -25,9 +25,14 @@ class HomeController extends BaseController {
 
         $this->layout->content->photos_url = $photoUrlArray;
     }
+    //Show photos in home page
+    public function showPhotos() {
+        $home = new Home;
+        return $home->getPhotosJson();
+    }
 
     /**
-     * Show the user profile.
+     * Show the user profile page.
      */
     public function showProfile() {
         $this->layout->content = View::make('profile');
@@ -45,6 +50,8 @@ class HomeController extends BaseController {
      */
     public function showAlbums() {
         $this->layout->content = View::make('albums');
+        $albums = new AlbumsController();
+        $this->layout->content->album_photos_info_array = $albums->getAlbumsData();
     }
 
     /**
@@ -58,6 +65,8 @@ class HomeController extends BaseController {
 
         if($albumName){
             $this->layout->content = View::make('singlealbum', array('albumId' => $albumId));
+
+            $this->layout->content->viewsCount = $album->countViews($albumId);
             $this->layout->content->albumId = $albumId;
 
             $this->layout->content->album_photos_info_array = $album->getPhotos($albumId);
@@ -86,6 +95,7 @@ class HomeController extends BaseController {
         if($photoName){
             $this->layout->content = View::make('singlephoto', array('albumId' => $albumId, 'photoId' => $photoId));
 
+            $this->layout->content->viewsCount = $photo->countViews($photoId);
             $this->layout->content->photo_data_array = $photo->getPhotoData($photoId);
 
             $this->layout->content->all_likes_count = $photo->getAllLikesCount($photoId);
@@ -120,12 +130,6 @@ class HomeController extends BaseController {
      */
     public function showNotFoundPage() {
         $this->layout->content = View::make('404');
-    }
-// other
-    public function showPhotos() {
-
-        $home = new Home;
-        return $home->getPhotosJson();
     }
 
 }

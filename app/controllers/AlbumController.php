@@ -146,4 +146,12 @@ class AlbumController extends BaseController {
 
         return $album->writeComment($comment, $currentAlbumId, $currentUserID, $posterIp);
     }
+
+    /*
+     * Views
+     */
+    public function countViews($albumId){
+        $album = new Album();
+        return $album->countViews($albumId);
+    }
 }

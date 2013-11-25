@@ -1,8 +1,3 @@
-<?php/*
-$nick = 'hamsteris';
-$pass = Hash::make('123');
-DB::insert('insert into users (username, password, email) values (?,?,?)', array($nick, $pass, 'email@gmail.com'));*/
-?>
     <div class="image-navigation">All resent photos:</div>
 
     @for ($i = 0; $i < sizeOf($photos_url); $i++)

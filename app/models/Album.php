@@ -311,4 +311,17 @@ class Album extends Eloquent{
 
         return $comment;
     }
+
+    /*
+     * Views
+     */
+    public function countViews($albumId){
+        $albums = DB::table('albums')->where('album_id', $albumId)->get();
+        foreach($albums as $album)
+            $count = $album->views;
+        $count++;
+        DB::table('albums')->where('album_id', $albumId)->update(array('views' => $count));
+
+        return $count;
+    }
 }

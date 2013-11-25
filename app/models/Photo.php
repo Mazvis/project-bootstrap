@@ -266,4 +266,17 @@ class Photo extends Eloquent{
         return $photoData;
     }
 
+    /*
+     * Views
+     */
+    public function countViews($photoId){
+        $albums = DB::table('photos')->where('photo_id', $photoId)->get();
+        foreach($albums as $album)
+            $count = $album->views;
+        $count++;
+        DB::table('photos')->where('photo_id', $photoId)->update(array('views' => $count));
+
+        return $count;
+    }
+
 }
