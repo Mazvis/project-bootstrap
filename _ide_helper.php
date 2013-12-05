@@ -3465,7 +3465,6 @@ class Event extends Illuminate\Support\Facades\Event{
 
 }
 
-class File extends Illuminate\Support\Facades\File{
 	/**
 	 * Determine if a file exists.
 	 *

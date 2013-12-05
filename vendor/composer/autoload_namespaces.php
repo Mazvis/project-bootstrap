@@ -29,6 +29,9 @@ return array(
     'PHPParser' => array($vendorDir . '/nikic/php-parser/lib'),
     'Normalizer' => array($vendorDir . '/patchwork/utf8/class'),
     'Monolog' => array($vendorDir . '/monolog/monolog/src'),
+    'Mews\\Phpthumb' => array($vendorDir . '/mews/phpthumb/src'),
+    'Krucas\\Notification' => array($vendorDir . '/edvinaskrucas/notification/src'),
+    'Imagine' => array($vendorDir . '/imagine/imagine/lib'),
     'Illuminate' => array($vendorDir . '/laravel/framework/src'),
     'Doctrine\\DBAL\\' => array($vendorDir . '/doctrine/dbal/lib'),
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib'),
@@ -38,6 +41,8 @@ return array(
     'Doctrine\\Common\\Annotations\\' => array($vendorDir . '/doctrine/annotations/lib'),
     'Doctrine\\Common\\' => array($vendorDir . '/doctrine/common/lib'),
     'ClassPreloader' => array($vendorDir . '/classpreloader/classpreloader/src'),
+    'Cartalyst\\Sentry' => array($vendorDir . '/cartalyst/sentry/src'),
     'Carbon' => array($vendorDir . '/nesbot/carbon/src'),
     'Barryvdh\\LaravelIdeHelper' => array($vendorDir . '/barryvdh/laravel-ide-helper/src'),
+    'Authority' => array($vendorDir . '/machuga/authority/src'),
 );

@@ -1,245 +1,336 @@
 <?php
 
-class Album extends Eloquent{
+class Album{
 
     public function uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFile, $titlePhoto){
 
         // upload photo to server
-        $filename = "";
         if ($photoFile != null){
-            $file = $photoFile;
 
-            $destinationPath = 'uploads/'.$currentUserID.'/albums/'.$currentAlbumId;
+            foreach($photoFile as $file) {
+                $destinationPath = 'uploads/albums/'.$currentAlbumId;
 
-            $filename = $file->getClientOriginalName();
-            //$filename = basename($file);
-            $extension = $file->getClientOriginalExtension();
+                //creates album directory if not exist
+                if(!is_dir('uploads'))
+                    mkdir('uploads', 0777, true);
+                if(!is_dir('uploads/albums'))
+                    mkdir('uploads/albums', 0777, true);
+                if(!is_dir('uploads/albums/'.$currentAlbumId))
+                    mkdir('uploads/albums/'.$currentAlbumId, 0777, true);
 
-            $upload_success = $photoFile->move($destinationPath, $filename);
-            //move_uploaded_file($file, $destinationPath);
-            /*if( $upload_success ) {
-                return Response::json('success', 200);
-            } else {
-                return Response::json('error', 400);
-            }*/
+                $filename = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $fileSize = $file->getSize();
 
-            //make: if this albumId exist in albums table do this insert
-            //upload photo in database
-            //DB::table('photos')->insert(
-            $insertedPhotoId = DB::table('photos')->insertGetId(
-                array('photo_name' => $photoName,
-                    'photo_short_description' => $shortDescription,
-                    'photo_taken_at' => $placeTaken,
-                    'photo_destination_url' => $destinationPath."/".$filename,
-                    'photo_thumbnail_destination_url' => null,
-                    'album_id' => $currentAlbumId,
-                    'user_id' => $currentUserID,
-                )
-            );
+                if($extension == 'jepg' || $extension == 'jpg' || $extension == 'bmp' || $extension == 'png' || $extension == 'gif')
+                    if($fileSize <= 1024*1024*3){
+                        //make: if this albumId exist in albums table do this insert
+                        $isAlbumIdExist = DB::select('select album_id from albums where album_id = ?', array($currentAlbumId));
+                        if($isAlbumIdExist){
+                            //upload photo in database
+                            $insertedPhotoId = DB::table('photos')->insertGetId(
+                                array('photo_name' => $photoName,
+                                    'photo_short_description' => $shortDescription,
+                                    'photo_taken_at' => $placeTaken,
+                                    'album_id' => $currentAlbumId,
+                                    'user_id' => $currentUserID,
+                                    'photo_size' => $fileSize
+                                )
+                            );
+                            $upload_success = $file->move($destinationPath, $insertedPhotoId.".".$extension);
+                            if($upload_success){
+                                //makes photo thumb
+                                $fileForThumb = $destinationPath."/".$insertedPhotoId.".".$extension;
+                                App::make('phpthumb')
+                                ->create('resize', array($fileForThumb, 200, 200, 'adaptive'))
+                                ->save($destinationPath."/", $insertedPhotoId."_thumb.".$extension);
 
-            //deletes old tags ant insert new
-            //DB::table('photo_tags')->where('photo_id', $insertedPhotoId)->delete();
-            for($i = 0; $i < sizeOf($selectedTags); $i++)
-                DB::table('photo_tags')->insert(
-                    array(
-                        'photo_id' => $insertedPhotoId,
-                        'tag_id' => (int)$selectedTags[$i],
-                    )
-                );
+                                DB::update('update photos set
+                                photo_destination_url = ?,
+                                photo_thumbnail_destination_url = ?
+                                where photo_id = ?',
+                                    array(
+                                        $destinationPath."/".$insertedPhotoId.".".$extension,
+                                        $destinationPath."/".$insertedPhotoId."_thumb.".$extension,
+                                        $insertedPhotoId));
+                            }
+                            //add selected tags to photo/photos
+                            for($i = 0; $i < sizeOf($selectedTags); $i++)
+                                DB::table('photo_tags')->insert(
+                                    array(
+                                        'photo_id' => $insertedPhotoId,
+                                        'tag_id' => (int)$selectedTags[$i],
+                                    )
+                                );
 
-            $sth = DB::table('albums')->where('album_id', $currentAlbumId)->get();
-            $oldTitleId = null;
-            foreach ($sth as $album)
-                $oldTitleId = $album->album_title_photo_id;
-            DB::table('albums_title_photos')->where('title_photo_id', $oldTitleId)->delete();
+                            //-----------------Editing album title photo data---------------------//
+                            //if 'make uploaded photo to title album photo' property is selected
+                            if($titlePhoto){
 
-            $insertedPhotoId = DB::table('albums_title_photos')->insertGetId(
-                array(
-                    'title_photo_destination_url' => $destinationPath."/".$filename,
-                    'title_photo_thumbnail_destination_url' => null,
-                    'album_id' => $currentAlbumId,
-                    'user_id' => $currentUserID,
-                )
-            );
+                                //gets old title url
+                                $titlePhoto = DB::table('albums')->where('album_id', $currentAlbumId)->get();
 
-            /*$insertedPhotoId = DB::insert('insert into photos (photo_name, photo_short_description, photo_taken_at, photo_destination_url,
-             photo_thumbnail_destination_url, album_id, user_id)
-             values (?, ?, ?, ?, ?, ?, ?)',
-             array($photoName, $shortDescription, $placeTaken, $destinationPath."/".$filename, null, $currentAlbumId, $currentUserID));*/
+                                //if album exist
+                                if($titlePhoto != null){
 
-            //if title photo = true then find in albums where is this album and write there the photo path or id(mabe better id)
-            if ($titlePhoto == true)
-                DB::table('albums')
-                    ->where('album_id', $currentAlbumId)
-                    ->update(array('album_title_photo_id' => $insertedPhotoId));
+                                    //deletes old title photo if exists from directory
+                                    $oldAlbumTitlePhoto = null;
+                                    $oldAlbumTitlePhoto = $titlePhoto[0]->album_title_photo_url;
+                                    if($oldAlbumTitlePhoto != null ){
+                                        if(is_file($oldAlbumTitlePhoto))
+                                            File::delete($oldAlbumTitlePhoto);
+                                    }
+                                    //deletes old title photo thumb if exists from directory
+                                    $oldAlbumTitlePhotoThumb = null;
+                                    $oldAlbumTitlePhotoThumb = $titlePhoto[0]->album_title_photo_thumb_url;
+                                    if($oldAlbumTitlePhotoThumb != null )
+                                        if(is_file($oldAlbumTitlePhotoThumb))
+                                            File::delete($oldAlbumTitlePhotoThumb);
+                                }
 
+                                //gets current photo url
+                                $newTitlePhoto = DB::table('photos')->where('photo_id', $insertedPhotoId)->get();
+                                if($newTitlePhoto){
+
+                                    //photo
+                                    $photo = null;
+                                    $photo = $newTitlePhoto[0]->photo_destination_url;
+                                    if($photo != null ){
+                                        if(is_file($photo)){
+                                            $photoExtension = File::extension($photo);
+                                            $newPhoto = $destinationPath."/title_".$currentAlbumId.".".$photoExtension;
+                                            File::copy($photo, $newPhoto);
+                                            $photo = $newPhoto;
+                                        }
+                                    }
+
+                                    //thumb
+                                    $photoThumb = null;
+                                    $photoThumb = $newTitlePhoto[0]->photo_thumbnail_destination_url;
+                                    if($photoThumb != null){
+                                        if(is_file($photoThumb)){
+                                            $thumbExtension = File::extension($photoThumb);
+                                            $newPhotoThumbUrl = $destinationPath."/title_".$currentAlbumId."_thumb.".$thumbExtension;
+                                            File::copy($photoThumb, $newPhotoThumbUrl);
+                                            $photoThumb = $newPhotoThumbUrl;
+                                        }
+                                    }
+                                    else if($photoThumb == null && is_file($photo) != null){
+                                        App::make('phpthumb')
+                                            ->create('resize', array($photo, 200, 200, 'adaptive'))
+                                            ->save($destinationPath."/", "title_".$currentAlbumId."_thumb.".$photoExtension);
+                                        $photoThumb = $destinationPath."/title_".$currentAlbumId."_thumb.".$photoExtension;
+                                    }
+
+                                    //insert uploaded/unuploaded files to database
+                                    DB::table('albums')
+                                        ->where('album_id', $currentAlbumId)
+                                        ->update(array(
+                                            'album_title_photo_url' => $photo,
+                                            'album_title_photo_thumb_url' => $photoThumb
+                                        ));
+                                }
+                            }
+                    }
+                }
+            }
         }
-        //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$filename.$extension.$titlePhoto;
+        return $insertedPhotoId;
     }
 
     public function editAlbum($currentAlbumId, $currentUserID, $albumName, $shortDescription, $fullDescription, $placeTaken, $titlePhotoFile){
 
-        $filename = "";
-        if ($titlePhotoFile != null){
-            $file = $titlePhotoFile;
-
-            $destinationPath = 'uploads/'.$currentUserID.'/albums/'.$currentAlbumId.'/title_photo';
-
-            $filename = $file->getClientOriginalName();
-            $extension = $file->getClientOriginalExtension();
-            $titlePhotoFile->move($destinationPath, $filename);
-        }
-
-        $sth = DB::table('albums')->where('album_id', $currentAlbumId)->get();
-        $oldTitleId = null;
-        foreach ($sth as $album)
-            $oldTitleId = $album->album_title_photo_id;
-        DB::table('albums_title_photos')->where('title_photo_id', $oldTitleId)->delete();
-
-        $insertedPhotoId = DB::table('albums_title_photos')->insertGetId(
-            array(
-                'title_photo_destination_url' => $destinationPath."/".$filename,
-                'title_photo_thumbnail_destination_url' => null,
-                'album_id' => $currentAlbumId,
-                'user_id' => $currentUserID,
-            )
-        );
-
         DB::table('albums')
             ->where('album_id', $currentAlbumId)
             ->update(array(
-                'album_name' => $albumName,
-                'album_short_description' => $shortDescription,
-                'album_full_description' => $fullDescription,
-                'album_place' => $placeTaken,
-                'album_title_photo_id' => $insertedPhotoId
-            )
-        );
+                    'album_name' => $albumName,
+                    'album_short_description' => $shortDescription,
+                    'album_full_description' => $fullDescription,
+                    'album_place' => $placeTaken
+                )
+            );
 
-    }
+        if ($titlePhotoFile != null){
+            $file = $titlePhotoFile;
 
-    public function getAlbumNameById($albumId){
-        $albums = DB::table('albums')->where('album_id', '=', $albumId)->get();
-        $mas = null;
-        foreach ($albums as $album)
-            $mas = $album->album_name;
+            $filename = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $fileSize = $file->getSize();
 
-        return $mas;
-    }
+            if($extension == 'jepg' || $extension == 'jpg' || $extension == 'bmp' || $extension == 'png' || $extension == 'gif')
+                //max is 3MG
+                if($fileSize <= 1024*1024*3){
 
-    public function getPhotos($albumId){
+                    //make: if this albumId exist in albums table do this insert
+                    $isAlbumIdExist = DB::select('select album_id from albums where album_id = ?', array($currentAlbumId));
+                    if($isAlbumIdExist){
 
-        // for photos displaying on page
+                        $titleDestinationPath = 'uploads/albums/'.$currentAlbumId;
 
-        $all = DB::table('photos')->where('album_id', '=', $albumId)->get();
-        $i = 0;
-        $mas = null;
-        foreach ($all as $all2){
-            $mas[$i]['photo_id'] = $all2->photo_id;
-            $mas[$i]['photo_name'] = $all2->photo_name;
-            $mas[$i]['photo_short_description'] = $all2->photo_short_description;
-            $mas[$i]['photo_taken_at'] = $all2->photo_taken_at;
-            $mas[$i]['photo_destination_url'] = $all2->photo_destination_url;
-            $i++;
+                        //creates album directory if not exist
+                        if(!is_dir('uploads'))
+                            mkdir('uploads', 0777, true);
+                        if(!is_dir('uploads/albums'))
+                            mkdir('uploads/albums', 0777, true);
+                        if(!is_dir('uploads/albums/'.$currentAlbumId))
+                            mkdir('uploads/albums/'.$currentAlbumId, 0777, true);
+
+                        //gets old title url
+                        $titlePhoto = DB::table('albums')->where('album_id', $currentAlbumId)->get();
+
+                        //if album exist
+                        if($titlePhoto != null){
+
+                            //deletes old title photo if exists from directory
+                            $oldAlbumTitlePhoto = null;
+                            $oldAlbumTitlePhoto = $titlePhoto[0]->album_title_photo_url;
+                            if($oldAlbumTitlePhoto != null ){
+                                if(is_file($oldAlbumTitlePhoto))
+                                    File::delete($oldAlbumTitlePhoto);
+                            }
+                            //deletes old title photo thumb if exists from directory
+                            $oldAlbumTitlePhotoThumb = null;
+                            $oldAlbumTitlePhotoThumb = $titlePhoto[0]->album_title_photo_thumb_url;
+                            if($oldAlbumTitlePhotoThumb != null )
+                                if(is_file($oldAlbumTitlePhotoThumb))
+                                    File::delete($oldAlbumTitlePhotoThumb);
+                        }
+
+                        //new title photo url
+                        $newTitlePhotoUrl = $titleDestinationPath."/title_".$currentAlbumId.".".$extension;
+
+                        //upload file to directory
+                        $upload_success = $file->move($titleDestinationPath, "title_".$currentAlbumId.".".$extension);
+                        if($upload_success){
+                            App::make('phpthumb')
+                                ->create('resize', array($newTitlePhotoUrl, 200, 200, 'adaptive'))
+                                ->save($titleDestinationPath."/", "title_".$currentAlbumId."_thumb.".$extension);
+
+                            $photoThumb = $titleDestinationPath."/title_".$currentAlbumId."_thumb.".$extension;
+
+                            //insert uploaded/unuploded files to database
+                            DB::table('albums')
+                                ->where('album_id', $currentAlbumId)
+                                ->update(array(
+                                    'album_title_photo_url' => $newTitlePhotoUrl,
+                                    'album_title_photo_thumb_url' => $photoThumb
+                                ));
+                        }
+                    }
+                }
         }
 
-
-        /*$photos = DB::table('photos')->where('album_id', '=', $albumId)->get();
-        $i=0;
-        $mas = null;
-        foreach ($photos as $photo)
-            $mas[$i++] = $photo->photo_destination_url;*/
-
-        return $mas;
     }
 
-    public function getAlbumTitlePhotoUrlById($albumId){
 
-        // for album info displaying on page
-
-        $all = DB::table('albums')->where('album_id', '=', $albumId)->get();
-        $mas = null;
-        $mas['album_title_photo_id'] = null;
-
-
-        foreach ($all as $all2){
-            $mas['album_id'] = $all2->album_id;
-            $mas['album_name'] = $all2->album_name;
-            $mas['album_short_description'] = $all2->album_short_description;
-            $mas['album_full_description'] = $all2->album_full_description;
-            $mas['album_place'] = $all2->album_place;
-            $mas['album_created_at'] = $all2->album_created_at;
-            $mas['album_title_photo_id'] = $all2->album_title_photo_id;
-        }
-
-        $photos = DB::select('select count(*) as sum from photos where album_id = ?', array($albumId));
-        foreach ($photos as $photo)
-            $mas['album_photos_count'] = $photo->sum;
-
-        //default
-        $mas['photo_destination_url'] = "uploads/1.jpg"; //no image need to upload
-
-        //$photos = DB::table('photos')->where('photo_id', $mas['album_title_photo_id'])->get();
-        $photos = DB::table('albums_title_photos')->where('title_photo_id', $mas['album_title_photo_id'])->get();
-        foreach ($photos as $photo)
-            $mas['photo_destination_url'] = $photo->title_photo_destination_url;
-
-        return $mas;
+    public function getAlbumPhotos($albumId){
+        return DB::select('select * from photos where album_id = ?', array($albumId));
     }
 
+    public function getAlbumDataByAlbumId($albumId){
+        $albums = DB::select('SELECT albums . * , users.username, COUNT( photos.photo_id ) AS album_photos_count
+        FROM albums
+        LEFT JOIN users ON albums.user_id = users.id
+        LEFT JOIN photos ON albums.album_id = photos.album_id
+        WHERE albums.album_id = ?
+        GROUP BY albums.album_id', array($albumId));
+
+        return $albums;
+    }
+
+    /*
+     * Deletes photo from album page by photo_id
+     * @param int $photoId
+     * @return string if delete is success
+     */
+
+    //***//
     public function deletePhoto($photoId){
-        DB::table('photos')->where('photo_id', $photoId)->delete();
-        DB::table('albums')->where('album_title_photo_id', $photoId)->update(array('album_title_photo_id' => null));
+        $photos = DB::select('select * from photos where photo_id = ?', array($photoId));
+        if($photos){
+            File::delete($photos[0]->photo_destination_url);
+
+            DB::table('photos')->where('photo_id', $photoId)->delete();
+            //DB::table('albums')->where('album_title_photo_id', $photoId)->update(array('album_title_photo_id' => null)); //???
+        }
         return "Deleted";
     }
 
+    /*
+     * Deletes all album data
+     * @param int $albumId
+     * @return string if delete is success
+     */
+
+    //***//+
     public function deleteAlbum($albumId){
-        DB::table('photos')->where('album_id', $albumId)->delete();
+
+        //deletes all album likes
+        DB::delete('delete from likes where album_id = ?', array($albumId));
+
+        //deletes all album comments
+        DB::delete('delete from comments where album_id = ?', array($albumId));
+
+        $photos = DB::table('photos')->where('album_id', $albumId)->get();
+
+        //if exist photos in this album
+        if($photos){
+            //deletes album directory
+            $albums = DB::table('albums')->where('album_id', $albumId)->get();
+            $userId = $albums[0]->user_id;
+            File::deleteDirectory('uploads/'.$userId.'/albums/'.$albumId);
+
+            //deletes all album photo likes
+            foreach($photos as $photo)
+                DB::delete('delete from likes where photo_id = ?', array($photo->photo_id));
+
+            //deletes all album photo comments
+            foreach($photos as $photo)
+                DB::delete('delete from comments where photo_id = ?', array($photo->photo_id));
+
+            //delete all added album photo tags
+            $photoTagsIds = DB::select('SELECT photo_tags.photo_tag_id
+            FROM photos
+            LEFT JOIN albums ON photos.album_id = albums.album_id
+            LEFT JOIN photo_tags ON photos.photo_id = photo_tags.photo_id
+            WHERE albums.album_id = ?
+            GROUP BY photo_tags.photo_tag_id',array($albumId));
+            foreach($photoTagsIds as $photoTagsId)
+                //delete all added album photos tags
+                DB::table('photo_tags')->where('photo_tag_id', $photoTagsId->photo_tag_id)->delete();
+
+            //deletes all title photo data
+            //DB::delete('delete from albums_title_photos where album_id = ?', array($albumId));
+
+            //deletes all album photos data from database
+            DB::table('photos')->where('album_id', $albumId)->delete();
+        }
+        //deletes album data from database
         DB::table('albums')->where('album_id', $albumId)->delete();
-        return "Deleted";
+
+        return 'Deleted';
     }
 
     /*
      * Likes
      */
-    public function getlikesArray($albumId){
-        $likes = DB::table('likes')->where('album_id', $albumId)->get();
-        $userId = null;
-        $i = 0;
-        foreach ($likes as $like)
-            $userId[$i++] = $like->user_id;
-
-        $j = 0;
-        $names = null;
-        for($i = 0; $i < sizeOf($userId); $i++){
-            $users = DB::table('users')->where('id', $userId[$i])->get();
-            foreach ($users as $user)
-                $names[$j++] = $user->username;
-        }
-
-        return $names;
+    public function getAlbumLikes($albumId){
+        return DB::select('SELECT likes.*, users.username
+        FROM likes
+        LEFT JOIN users ON likes.user_id = users.id
+        WHERE album_id = ?', array($albumId));
     }
 
-    public function getAllLikesCount($albumId){
-        $likes = DB::table('likes')->where('album_id', $albumId)->get();
-        $count = 0;
-        foreach ($likes as $like){
-            $count++;
-        }
-
-        return $count;
+    public function isLikeAlreadyExists($albumId, $currentUserID){
+        $likes = DB::select('select * from likes where album_id = ? and user_id = ?', array($albumId, $currentUserID));
+        if($likes)
+            return 1;
+        return 0;
     }
-
-
 
     public function makeLike($albumId, $currentUserID){
-        //$likes = DB::table('likes')->where('album_id', $albumId)->where('user_id', $currentUserID)->get();
-        $likes = DB::select('select * from likes where album_id = ? and user_id = ?', array($albumId, $currentUserID));
-        $mas = null;
-        foreach ($likes as $like)
-            $mas = $like->user_id;
-
-        if(!$mas){
+        $isExist = $this->isLikeAlreadyExists($albumId, $currentUserID);
+        if($isExist == 0 && $currentUserID != null){
             DB::table('likes')->insert(
                 array(
                     'album_id' => $albumId,
@@ -247,81 +338,66 @@ class Album extends Eloquent{
                 )
             );
         }
+        else if($isExist == 1)
+            DB::delete('delete from likes where album_id = ? and user_id = ?', array($albumId, $currentUserID));
 
         return $currentUserID;
-    }
-
-    public function makeLikeWithIp($albumId, $likerIp){
-        $likes = DB::select('select * from likes where album_id = ? and liker_ip = ?', array($albumId, $likerIp));
-        $mas = null;
-        foreach ($likes as $like)
-            $mas = $like->liker_id;
-
-        if(!$mas){
-            DB::table('likes')->insert(
-                array(
-                    'album_id' => $albumId,
-                    'liker_ip' => $likerIp,
-                )
-            );
-        }
-
-        return $likerIp;
     }
 
     /*
      * Comments
      */
-    public function getCommentsArray($albumId){
-        $comments = DB::table('comments')->where('album_id', $albumId)->get();
-
-        $mas  = null;
-        $i = 0;
-        foreach ($comments as $comment){
-            $mas[$i]['comment_id'] = $comment->user_id;
-            $mas[$i]['comment'] = $comment->comment;
-            $mas[$i]['album_id'] = $comment->album_id;
-            $mas[$i]['created_at'] = $comment->created_at;
-            $mas[$i]['user_id'] = $comment->user_id;
-            $mas[$i]['commenter_ip'] = $comment->commenter_ip;
-
-            if($mas[$i]['user_id']){
-                $users = DB::table('users')->where('id', $mas[$i]['user_id'])->get();
-                foreach ($users as $user)
-                    $mas[$i]['username'] = $user->username;
-            }
-            else
-                $mas[$i]['username'] = 'Unknown';
-            $i++;
-        }
-
-        return $mas;
+    public function getAlbumComments($albumId){
+        return DB::select('SELECT comments.*, users.username
+        FROM comments
+        LEFT JOIN users ON comments.user_id = users.id
+        WHERE album_id = ?', array($albumId));
     }
 
     public function writeComment($comment, $currentAlbumId, $currentUserID, $posterIp){
-
-        DB::table('comments')->insert(
-            array(
-                'comment' => $comment,
-                'album_id' => $currentAlbumId,
-                'user_id' => $currentUserID,
-                'commenter_ip' => $posterIp,
-            )
-        );
-
-        return $comment;
+        //if album exists
+        if(DB::table('albums')->where('album_id',$currentAlbumId)->get()){
+            DB::table('comments')->insert(
+                array(
+                    'comment' => $comment,
+                    'album_id' => $currentAlbumId,
+                    'user_id' => $currentUserID,
+                    'commenter_ip' => $posterIp,
+                )
+            );
+            return $comment;
+        }
     }
 
     /*
      * Views
      */
     public function countViews($albumId){
-        $albums = DB::table('albums')->where('album_id', $albumId)->get();
-        foreach($albums as $album)
-            $count = $album->views;
-        $count++;
-        DB::table('albums')->where('album_id', $albumId)->update(array('views' => $count));
-
-        return $count;
+        DB::update('update albums set views = views+1 where album_id = ?', array($albumId));
     }
+
+    //***//
+    public function getAllUserAlbums($userId){
+        $albums = DB::select('
+        select albums.*
+        from albums
+        where albums.user_id = ?
+        order by album_created_at', array($userId));
+        return $albums;
+    }
+
+    public function isUserAlbumCreator($currentUserId, $albumId){
+        $ifUser = DB::select('
+        select users.id
+        from users
+        left join albums
+        on albums.user_id = users.id
+        where albums.user_id = ?
+        and albums.album_id = ?', array($currentUserId, $albumId));
+
+        if($ifUser)
+            return 1;
+        return 0;
+    }
+
 }

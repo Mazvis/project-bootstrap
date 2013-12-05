@@ -3,11 +3,16 @@
 class LoginController extends BaseController {
 
     public function authLogin() {
-        $username = Input::get('username');
-        $password = Input::get('password');
+        if (Auth::attempt(array('username' => Input::get('username'), 'password' => Input::get('password')))) {
+            return Redirect::intended('/');
+        }else{
+            return Redirect::to('/')->with('tried_login', Input::get('username'));
+        }
+    }
 
-        $login = new Login;
-        return $login->auth($username, $password);
+    public function logout() {
+        $logout = new Login;
+        return $logout->logout();
     }
 
 }

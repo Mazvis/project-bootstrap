@@ -1,34 +1,32 @@
 <?php
-
+/**
+ * Class AlbumController
+ */
 class AlbumController extends BaseController {
 
-    public function getData() {
-        //$currentUserID = 1;
-        //if(Auth::user()->id)
+    public function uploadPhoto() {
         $currentAlbumId = Input::get('albumId');
 
         if(Auth::check()){
+            $album = new Album();
             $currentUserID = Auth::user()->id;
+            if($album->isUserAlbumCreator($currentUserID, $currentAlbumId) || Auth::user()->role_id == 1){
+                $photoName = Input::get('photoName');
+                $shortDescription = Input::get('shDescription');
+                $placeTaken = Input::get('placeTaken');
+                $selectedTags = Input::get('tags');
 
-            //$currentAlbumId = Input::get('albumId');
+                $photoFiles = null;
+                if (Input::hasFile('photos'))
+                    $photoFiles = Input::file('photos');
 
-            $photoName = Input::get('photoName');
-            $shortDescription = Input::get('shDescription');
-            $placeTaken = Input::get('placeTaken');
-            $selectedTags = Input::get('tags');
+                $titlePhoto = Input::get('titlePhoto');
 
-            $photoFile = null;
-            if (Input::hasFile('photos'))
-                $photoFile = Input::file('photos');
-
-            $titlePhoto = Input::get('titlePhoto');
-
-            $album = new Album;
-            $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFile, $titlePhoto);
-            //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
-            //return Redirect::to('albums/'.$currentAlbumId);
+                return $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFiles, $titlePhoto);
+                //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
+                //return Redirect::to('albums/'.$currentAlbumId);
+            }
         }
-        return Redirect::to('albums/'.$currentAlbumId);
         //return $this->getPhotos($currentAlbumId);
     }
 
@@ -36,75 +34,89 @@ class AlbumController extends BaseController {
         $currentAlbumId = Input::get('albumId');
 
         if(Auth::check()){
+            $album = new Album();
             $currentUserID = Auth::user()->id;
+            if($album->isUserAlbumCreator($currentUserID, $currentAlbumId) || Auth::user()->role_id == 1){
 
-            $albumName = Input::get('albumName');
-            $shortDescription = Input::get('shDescription');
-            $fullDescription = Input::get('fullDescription');
-            $placeTaken = Input::get('placeTaken');
+                $albumName = Input::get('albumName');
+                $shortDescription = Input::get('shDescription');
+                $fullDescription = Input::get('fullDescription');
+                $placeTaken = Input::get('placeTaken');
 
-            $titlePhotoFile = null;
-            if (Input::hasFile('albumTitlePhoto'))
-                $titlePhotoFile = Input::file('albumTitlePhoto');
+                $titlePhotoFile = null;
+                if (Input::hasFile('albumTitlePhoto'))
+                    $titlePhotoFile = Input::file('albumTitlePhoto');
 
-            $album = new Album;
-            $album->editAlbum($currentAlbumId, $currentUserID, $albumName, $shortDescription, $fullDescription, $placeTaken, $titlePhotoFile);
+                $album = new Album;
+
+                $album->editAlbum($currentAlbumId, $currentUserID, $albumName, $shortDescription, $fullDescription, $placeTaken, $titlePhotoFile);
+            }
         }
-        return Redirect::to('albums/'.$currentAlbumId);
+        //return Redirect::to('albums/'.$currentAlbumId);
     }
 
-    public function getAlbumNameById($albumId){
-        $album = new Album;
-        return $album->getAlbumNameById($albumId);
-    }
-
-    public function getPhotos($albumId){
-        $album = new Album();
-        return $album->getPhotos($albumId);
-    }
-
-    public function getAlbumTitlePhotoUrlById($albumId){
-        $album = new Album();
-        return $album->getAlbumTitlePhotoUrlById($albumId);
-    }
     /*
      * Deletes
      */
     public function deletePhoto(){
+
         if(Auth::check()){
+            $currentUserID = Auth::user()->id;
             $photoId = Input::get('photoId');
-            //$albumId = Input::get('albumId');
-            $album = new Album();
-            return $album->deletePhoto($photoId);
+            $photo = new Photo();
+            if($photo->isUserPhotoCreator($currentUserID, $photoId) || Auth::user()->role_id == 1){
+               $album = new Album();
+               return $album->deletePhoto($photoId);
+            }
         }
-        return "not singned in";
+        return "not singned in or havent rules to delete";
     }
 
     public function deleteAlbum(){
+
         if(Auth::check()){
+            $currentUserID = Auth::user()->id;
             $albumId = Input::get('albumId');
             $album = new Album();
-            return $album->deleteAlbum($albumId);
+            if($album->isUserAlbumCreator($currentUserID, $albumId) || Auth::user()->role_id == 1){
+
+                return $album->deleteAlbum($albumId);
+            }
         }
         return "u have no rules";
     }
+
+    public function getAlbumPhotos($albumId){
+        $album = new Album();
+        return $album->getAlbumPhotos($albumId);
+    }
+
+    public function getAlbumDataByAlbumId($albumId){
+        $album = new Album();
+        return $album->getAlbumDataByAlbumId($albumId);
+    }
+
     /*
      * Likes
      */
-    public function getlikesArray($albumId){
+    public function getAlbumLikes($albumId){
         $album = new Album();
-        return $album->getlikesArray($albumId);
+        return $album->getAlbumLikes($albumId);
     }
-    public function getAllLikesCount($albumId){
+
+    public function isLikeAlreadyExists($currentAlbumId){
         $album = new Album();
-        return $album->getAllLikesCount($albumId);
+        if(Auth::check()){
+            $currentUserID = Auth::user()->id;
+            return $album->isLikeAlreadyExists($currentAlbumId, $currentUserID);
+        }
+        return "u not signed in";
     }
 
     public function makeLike(){
         if(Auth::check())
-            return $this->makeALike();
-        else
-            return $this->makeLikeWithIp();
+            if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
+                return $this->makeALike();
     }
 
     public function makeALike(){
@@ -114,29 +126,20 @@ class AlbumController extends BaseController {
             $currentUserID = Auth::user()->id;
             return $album->makeLike($currentAlbumId, $currentUserID);
         }
-        //return Request::getClientIp(); //getenv("REMOTE_ADDR");
-    }
-
-    public function makeLikeWithIp(){
-        $album = new Album();
-        $currentAlbumId = Input::get('albumId');
-        $likerIp = Request::getClientIp();
-
-        return $album->makeLikeWithIp($currentAlbumId, $likerIp);
     }
 
     /*
      * Comments
      */
-    public function getCommentsArray($albumId){
+    public function getAlbumComments($albumId){
         $album = new Album();
-        return $album->getCommentsArray($albumId);
+        return $album->getAlbumComments($albumId);
     }
 
     public function writeComment(){
         $album = new Album();
 
-        $currentUserID = null;
+        $currentUserID = null; //defoult
         if(Auth::check())
             $currentUserID = Auth::user()->id;
 
@@ -154,4 +157,32 @@ class AlbumController extends BaseController {
         $album = new Album();
         return $album->countViews($albumId);
     }
+
+    /*
+     * All user albums for user page
+     */
+    public function getAllUserAlbums($userId){
+        $album = new Album;
+        return $album->getAllUserAlbums($userId);
+    }
+
+    public function isUserAlbumCreator($albumId){
+        $album = new Album;
+        $currentUserId = 0;
+        if(auth::check())
+            $currentUserId = Auth::user()->id;
+        return $album->isUserAlbumCreator($currentUserId, $albumId);
+    }
+
+    public function isUserHavingPrivilegies($albumId){
+        $album = new Album;
+
+        if(Auth::check()){
+            $userId = Auth::user()->id;
+            if($album->isUserAlbumCreator(Auth::user()->id, $albumId) || Auth::user()->role_id == 1)
+                return 1;
+        }
+        return 0;
+    }
+
 }

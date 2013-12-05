@@ -13,45 +13,66 @@
 
 // Show home page
 Route::get('/', 'HomeController@showHome');
-//Ajax query
-Route::post('show-photos', 'HomeController@showPhotos');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show user profile page
 Route::get('/profile', 'HomeController@showProfile');
+Route::post('upload',array(
+    'uses'=>'ProfileController@uploadProfilePic',
+    'as'=>'user.upload.pic'
+));
+
+Route::model('user', 'User');
+Route::post('profile/update/name/{user}', array(
+    'uses'=>'ProfileController@profileNamePost',
+    'as' => 'user.update.name'
+));
+Route::post('profile/update/email/{user}', array(
+    'uses'=>'ProfileController@profileEmailPost',
+    'as' => 'user.update.email'
+));
+Route::post('profile/update/password/{user}', array(
+    'uses'=>'ProfileController@profilePasswordPost',
+    'as' => 'user.update.password'
+));
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+// Show single user profile page
+Route::get('user/{username}', 'HomeController@showUserProfile');
+Route::post('upload',array(
+    'uses'=>'ProfileController@uploadProfilePic',
+    'as'=>'user.upload.pic'
+));
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show albums page
 Route::get('/albums', 'HomeController@showAlbums');
-Route::post('albums-get', array(
-    'uses' => 'AlbumsController@getData',
-    'as' => 'albums.get'
-));
+    //forms
+    Route::post('create-album', 'AlbumsController@createAlbum');
+
+    Route::post('show-albums', 'AlbumsController@getAlbums');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show single album page
 Route::get('albums/{albumId}', 'HomeController@showSingleAlbum');
-Route::post('upload-and-show-photos', array(
-    'uses' => 'AlbumController@getData',
-    'as' => 'photo.upload'
-));
-Route::post('edit-album-info', array(
-    'uses' => 'AlbumController@editAlbum',
-    'as' => 'album.edit'
-));
-//Ajax
-Route::post('delete-photo', 'AlbumController@deletePhoto');
-Route::post('delete-album', 'AlbumController@deleteAlbum');
-Route::post('like-album', 'AlbumController@makeLike');
-Route::post('comment-in-album', 'AlbumController@writeComment');
+    //forms
+    Route::post('upload-photos-to-album', 'AlbumController@uploadPhoto');
+    Route::post('edit-album-data', 'AlbumController@editAlbum');
+
+    //Ajax
+    Route::post('delete-photo', 'AlbumController@deletePhoto');
+    Route::post('delete-album', 'AlbumController@deleteAlbum');
+    Route::post('like-album', 'AlbumController@makeLike');
+    Route::post('comment-in-album', 'AlbumController@writeComment');
+
+    Route::post('show-album-photos', 'AlbumController@getAlbumPhotos');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show single photo page
 Route::get('albums/{albumId}/photo/{photoId}', 'HomeController@showSinglePhoto');
-Route::post('edit-photo-info', array(
-    'uses' => 'PhotoController@editPhoto',
-    'as' => 'photo.edit'
-));
-//Ajax
-Route::post('like-photo', 'PhotoController@makeLike');
-Route::post('comment-in-photo', 'PhotoController@writeComment');
-Route::post('delete-photo-from-album', 'PhotoController@deletePhoto');
+    //forms
+    Route::post('edit-photo-data', 'PhotoController@editPhoto');
+
+    //Ajax
+    Route::post('like-photo', 'PhotoController@makeLike');
+    Route::post('comment-in-photo', 'PhotoController@writeComment');
+    Route::post('delete-photo-from-album', 'PhotoController@deletePhoto');
 /*--------------------------------------------------------------------------------------------------------------------*/
 //Show tag page
 Route::get('tag/{tagName}', 'HomeController@showTagPage');
@@ -59,14 +80,30 @@ Route::get('tag/{tagName}', 'HomeController@showTagPage');
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Show login page
 Route::get('login', 'HomeController@showLogin');
-Route::post('login', array(
-    'uses' => 'LoginController@authLogin',
-    'as' => 'login'
+
+    // For login AJAX query
+    Route::post('validate-login', array(
+        'uses' => 'RegistrationController@tryLogin',
+        'as' => 'login.try'
+    ));
+
+    //forms
+    Route::post('login-to-page', 'LoginController@authLogin');
+    //logout
+    Route::get('logout', 'LoginController@logout');
+    /*Route::get('logout', function() {
+        Auth::logout();
+        return Redirect::to('login');
+    });*/
+/*--------------------------------------------------------------------------------------------------------------------*/
+// Show registration page
+Route::get('/registration', array(
+    'uses' => 'HomeController@showRegistration',
+    'as' => 'registration'
 ));
 /*--------------------------------------------------------------------------------------------------------------------*/
-
-// Logout route
-Route::get('logout', function() {
-    Auth::logout();
-    return Redirect::to('login');
-});
+// For registration AJAX query
+Route::post('validate-registration', array(
+    'uses' => 'RegistrationController@storeGet',
+    'as' => 'registration.store'
+));

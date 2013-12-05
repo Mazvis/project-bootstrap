@@ -1,51 +1,51 @@
 <?php
 
 class PhotoController extends BaseController {
-    /*
-     * gets the current photo data
-     */
-    public function getPhotoData($photoId){
-        $photo = new Photo;
-        return $photo->getPhotoData($photoId);
+
+    public function getPhotoDataByPhotoId($photoId, $albumId){
+        $photo = new Photo();
+        return $photo->getPhotoDataByPhotoId($photoId, $albumId);
     }
 
-    /*
-     * Gets the current photo name
-     */
-    public function getPhotoNameByAlbumAndPhotoId($albumId, $photoId){
+    public function getAllPhotoData(){
         $photo = new Photo;
-        return $photo->getPhotoNameByAlbumAndPhotoId($albumId, $photoId);
+        return $photo->getAllPhotoData();
     }
 
     public function editPhoto() {
-        $currentPhotoId = Input::get('photoId');
-        $currentAlbumId = Input::get('albumId');
-        $selectedTags = Input::get('tags');
+
         if(Auth::check()){
+            $photo = new Photo();
             $currentUserID = Auth::user()->id;
+            $currentPhotoId = Input::get('photoId');
+            if($photo->isUserPhotoCreator($currentUserID, $currentPhotoId) || Auth::user()->role_id == 1){
 
-            $photoName = Input::get('photoName');
-            $shortDescription = Input::get('shDescription');
-            $placeTaken = Input::get('placeTaken');
-            $albumTitlePhoto = Input::get('albumTitlePhoto');
+                $currentAlbumId = Input::get('albumId');
+                $selectedTags = Input::get('tags');
 
-            $photo = new Photo;
-            $photo->editPhoto($currentAlbumId, $currentPhotoId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $albumTitlePhoto);
+
+                $photoName = Input::get('photoName');
+                $shortDescription = Input::get('shDescription');
+                $placeTaken = Input::get('placeTaken');
+                $albumTitlePhoto = Input::get('albumTitlePhoto');
+
+                $photo = new Photo;
+                return $photo->editPhoto($currentAlbumId, $currentPhotoId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $albumTitlePhoto);
+            }
         }
-        return Redirect::back();
-        //return $selectedTags;
-        //return Redirect::to('albums/'.$currentAlbumId.'photo/'.$currentPhotoId);
-        //return $currentAlbumId.$currentPhotoId.$currentUserID.$photoName.$shortDescription.$placeTaken.$albumTitlePhoto;
     }
 
     public function deletePhoto(){
         $currentAlbumId = Input::get('albumId');
 
         if(Auth::check()){
-            $currentPhotoId = Input::get('photoId');
             $photo = new Photo();
-            $photo->deletePhoto($currentPhotoId);
-            return Redirect::to('albums/'.$currentAlbumId);
+            $currentUserID = Auth::user()->id;
+            $currentPhotoId = Input::get('photoId');
+            if($photo->isUserPhotoCreator($currentUserID, $currentPhotoId) || Auth::user()->role_id == 1){
+                return $photo->deletePhoto($currentPhotoId);
+                //return Redirect::to('albums/'.$currentAlbumId);
+            }
         }
         //return $currentAlbumId;
     }
@@ -53,20 +53,24 @@ class PhotoController extends BaseController {
     /*
      * Likes
      */
-    public function getLikesArray($photoId){
+    public function getPhotoLikes($albumId){
         $photo = new Photo();
-        return $photo->getlikesArray($photoId);
+        return $photo->getPhotoLikes($albumId);
     }
-    public function getAllLikesCount($photoId){
+
+    public function isLikeAlreadyExists($currentPhotoId){
         $photo = new Photo();
-        return $photo->getAllLikesCount($photoId);
+        if(Auth::check()){
+            $currentUserID = Auth::user()->id;
+            return $photo->isLikeAlreadyExists($currentPhotoId, $currentUserID);
+        }
+        return "u not signed in";
     }
 
     public function makeLike(){
         if(Auth::check())
-            return $this->makeALike();
-        else
-            return $this->makeLikeWithIp();
+            if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
+                return $this->makeALike();
     }
 
     public function makeALike(){
@@ -78,19 +82,12 @@ class PhotoController extends BaseController {
         }
     }
 
-    public function makeLikeWithIp(){
-        $photo = new Photo();
-        $currentPhotoId = Input::get('photoId');
-        $likerIp = Request::getClientIp();
-
-        return $photo->makeLikeWithIp($currentPhotoId, $likerIp);
-    }
     /*
      * Comments
      */
-    public function getCommentsArray($photoId){
+    public function getPhotoComments($photoId){
         $photo = new Photo();
-        return $photo->getCommentsArray($photoId);
+        return $photo->getPhotoComments($photoId);
     }
 
     public function writeComment(){
@@ -124,10 +121,19 @@ class PhotoController extends BaseController {
         $photo = new Photo;
         return $photo->getTagId($tagName);
     }
+    public function getTagData($tagName){
+        $photo = new Photo;
+        return $photo->getTagData($tagName);
+    }
 
     public function getPhotoDataByTag($tag_id){
         $photo = new Photo;
         return $photo->getPhotoDataByTag($tag_id);
+    }
+
+    public function getPhotoDataByTagId($tag_id){
+        $photo = new Photo;
+        return $photo->getPhotoDataByTagId($tag_id);
     }
 
     /*
@@ -135,6 +141,7 @@ class PhotoController extends BaseController {
      */
     public function countViews($photoId){
         $photo = new Photo();
-        return $photo->countViews($photoId);
+        $photo->countViews($photoId);
     }
+
 }

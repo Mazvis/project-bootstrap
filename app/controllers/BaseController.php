@@ -13,10 +13,12 @@ class BaseController extends Controller {
      * @return void
      */
     protected function setupLayout() {
+        $photo = new Photo();
         if (!is_null($this->layout)) {
             $this->layout = View::make($this->layout);
             $this->layout->content = '';
             $this->layout->bodyclass = '';
+            $this->layout->existingTags = $photo->getExistingTags();
         }
     }
 

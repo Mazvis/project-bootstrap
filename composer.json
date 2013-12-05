@@ -5,8 +5,15 @@
 	"license": "MIT",
 	"require": {
 		"laravel/framework": "4.0.*",
-		"barryvdh/laravel-ide-helper": "1.*"
-        "machuga/authority" : "dev-master"
+		"barryvdh/laravel-ide-helper": "1.*",
+
+        "mews/phpthumb": "dev-master",
+        "machuga/authority" : "dev-master",
+
+        "imagine/imagine": "~0.5.0",
+        "cartalyst/sentry": "2.0.*",
+        "dflydev/markdown": "v1.0.2",
+        "imagine/Imagine": "v0.4.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -15,7 +22,9 @@
 			"app/models",
 			"app/database/migrations",
 			"app/database/seeds",
-			"app/tests/TestCase.php"
+			"app/tests/TestCase.php",
+            "app/services",
+            "app/facades"
 		]
 	},
 	"scripts": {

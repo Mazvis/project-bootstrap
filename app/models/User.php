@@ -88,7 +88,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         $user->email = $input['email'];
         $user->name = ucfirst($input['first_name']);
         $user->last_name = ucfirst($input['last_name']);
-        $user->save();        Session::put('just_reg', 'yes');
+        $user->role_id = 2;
+        $user->save();
+        Session::put('just_reg', 'yes');
         self::createUserSession($user);
         return 'OK';
     }
@@ -102,19 +104,24 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         Session::put('members', $user);
     }
 
-    public function getPhotosFromDb() {
-
-        $photos = DB::table('photos')->get();
-        $i=0;
-        $mas = null;
-        //$photo = DB::table('photos')->lists('photo_destination_url');
-        foreach ($photos as $photo)
-        {
-            $mas[$i] = $photo->photo_destination_url;
-            $i++;
-        }
-        return $mas;
+    /**
+     * @param $userId
+     * @return mixed
+     */
+    public function getUserName($userId) {
+        $users = DB::table('users')->where('id', $userId)->get();
+        $user = 'Unknown';
+        foreach($users as $user)
+            $username = $user->username;
+        return $username;
     }
 
+    /**
+     * @param $username
+     * @return mixed
+     */
+    public function getUserDataByUserName($username){
+        return $users = DB::select('select * from users where username = ?', array($username));
+    }
 
 }

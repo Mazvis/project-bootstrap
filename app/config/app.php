@@ -115,7 +115,7 @@ return array(
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
-
+        'Mews\Phpthumb\PhpthumbServiceProvider',
 	),
 
 	/*
@@ -182,5 +182,7 @@ return array(
 		'View'            => 'Illuminate\Support\Facades\View',
 
 	),
+
+    'Image' => 'App\Facades\ImageFacade',
 
 );

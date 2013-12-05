@@ -1,156 +1,264 @@
-<h1>{{ $album_info_array['album_name'] }}</h1>
+<h1>{{ $albumData->album_name }} {{--Request::segment(2)--}}</h1>
 
 <div class="image-navigation" style="padding-left: 0; padding-top: 0;">
 
-    <a href="{{ URL::to($album_info_array['photo_destination_url']) }}" class="photo-link" style="float:left">
-        <img src="{{ URL::to($album_info_array['photo_destination_url']) }}" alt="First">
+    <a href="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('/albums/'.$albumData->album_id) }} @endif" class="photo-link" style="float:left">
+        <img data-toggle = "modal" data-target = "#showPhotoModal" src="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('assets/img/NoAlbumArt.jpg') }} @endif" alt="First">
     </a>
 
+    <!-- Modal -->
+    <div class="modal fade" id="showPhotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">TitlePhoto</h4>
+                </div>
+                <div class="modal-body">
+                    <img src="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('assets/img/NoAlbumArt.jpg') }} @endif" alt="First">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
     <div style="float:left; width:30%">
-        <p>Album name: {{ $album_info_array['album_name'] }}</p>
-        <p>Place: {{ $album_info_array['album_place'] }}</p>
-        <p>Created at: {{ $album_info_array['album_created_at'] }}</p>
-        <p>Title photo: {{ $album_info_array['album_title_photo_id'] }}</p>
-        <p>Album fool description: {{ $album_info_array['album_full_description'] }}</p>
-        <p>Views: {{ $viewsCount }}</p>
-        <p>Album photos count: {{ $album_info_array['album_photos_count'] }}</p>
+        <p>Album name: {{ $albumData->album_name }}</p>
+        <p>Place: {{ $albumData->album_place }}</p>
+        <p>Created at: {{ $albumData->album_created_at }}</p>
+        <!--<p>Title photo: {{ $albumData->album_title_photo_id }}</p>-->
+        <p>Album fool description: {{ $albumData->album_full_description }}</p>
+        <p>Creator: {{ HTML::link('user/'.$albumData->username, $albumData->username) }}</p>
+        <p>Views: {{ $albumData->views }}</p>
+        <p>Album photos count: {{ $albumData->album_photos_count }}</p>
 
+        @if($isUserHavingPrivilegies)
+        {{ Form::submit('Delete album', array('class' => 'btn btn-danger', 'data-toggle' => 'modal', 'data-target' => '#deleteAlbumModal')) }}
 
-        <li><input id="upload-button" type="submit" value="Upload"\></li>
-        <li><input id="edit-button" type="submit" value="EDIT"\></li>
-        <li data-albumid="{{ $album_info_array['album_id'] }}"><input id="delete-album"type="submit" value="DELETE ALBUM"\></li>
-
+        <!-- Modal -->
+        <div class="modal fade" id="deleteAlbumModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Detele album</h4>
+                    </div>
+                    <div class="modal-body">
+                        You really want delete this album?
+                    </div>
+                    <div class="modal-footer" id="delete-album-data" data-albumid="{{ $albumData->album_id }}">
+                        {{ Form::submit('Delete', array('id' => 'delete-album-in-album-page', 'class' => 'btn btn-danger')) }}
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        @endif
 
     </div>
 
-    <div class="clear"></div>
+
+    <div style="clear:both"></div>
     <hr>
 </div>
 
-<div class="image-navigation" style="border: 1px solid red">
-    <b>Edit:</b>
-    {{ Form::open(array('route' => 'album.edit', 'files'=> true, 'method' => 'post', 'id' => 'edit-form', 'class' => 'form-hidden')) }}
+<div class="panel-group" id="accordion2">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                {{ Form::hidden('albumId', $albumId) }}
+                @if(Auth::check())
+                    @if($isLikeAlreadyExists == 1)
+                    {{--Form::submit('Unlike', array('class' => 'btn btn-warning album-like-button'))--}}
+                    <button class="btn btn-warning album-like-button">
+                        <i class="glyphicon glyphicon-thumbs-down"></i>
+                        <span class="text">Unlike</span>
+                    </button>
+                    @else
+                    <button class="btn btn-success album-like-button">
+                        <i class="glyphicon glyphicon-thumbs-up"></i>
+                        <span class="text">Like</span>
+                    </button>
+                    {{--Form::submit('Like', array('class' => 'btn btn-success album-like-button'))--}}
+                    @endif
+                @else
+                    <div>
+                        {{ Form::submit('Like', array(
+                        'class' => 'btn btn-success',
+                        'disabled' => 'true',
+                        'data-toggle' => 'tooltip',
+                        'data-placement' => 'right',
+                        'data-original-title' => 'Only register users can like'
+                        )) }}
+                    </div>
+                @endif
 
-    {{ Form::hidden('albumId', $albumId)}}
-
-    <p>{{ Form::label('albumName', 'Album name') }}</p>
-    <p>{{ Form::text('albumName', $album_info_array['album_name']) }}</p>
-
-    <p>{{ Form::label('shDescription', 'Album short description') }}</p>
-    <p>{{ Form::text('shDescription', $album_info_array['album_short_description']) }}</p>
-
-    <p>{{ Form::label('fullDescription', 'Album full description') }}</p>
-    <p>{{ Form::text('fullDescription', $album_info_array['album_full_description']) }}</p>
-
-    <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
-    <p>{{ Form::text('placeTaken', $album_info_array['album_place']) }}</p>
-
-    <p>{{ Form::label('albumTitlePhoto', 'Title photo') }}</p>
-    <p>{{ Form::file('albumTitlePhoto') }}</p>
-
-    <p>{{ Form::submit('Edit') }}</p>
-
-    {{ Form::token() }}
-    {{ Form::close() }}
+                <a data-toggle="collapse" data-parent="#accordion2" href="#likers">
+                    <p>
+                        Likes: {{ sizeOf($likes) }}
+                    </p>
+                </a>
+            </h4>
+        </div>
+        <div id="likers" class="panel-collapse collapse">
+            <div class="panel-body">
+                @for ($i = 0; $i < sizeOf($likes); $i++)
+                    {{ HTML::link('user/'.$likes[$i]->username, $likes[$i]->username) }}
+                    @if($i < sizeOf($likes)-1)
+                    ,
+                    @endif
+                @endfor
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="image-navigation" style="border: 1px solid red">
-    <b>Upload:</b>
-    {{ Form::open(array('route' => 'photo.upload', 'files'=> true, 'method' => 'post', 'id' => 'upload-form', 'class' => 'form-hidden')) }}
-    <!--<form method="POST" action="javascript:;" accept-charset="UTF-8" id="upload" enctype="multipart/form-data" style="display: inherit;">-->
 
-    {{ Form::hidden('albumId', $albumId)}}
+<div class="tabs">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active"><a href="#comment-in-album-tab" data-toggle="tab">Comment</a></li>
+        @if($isUserAlbumCreator)
+            <li class=""><a href="#edit-album-tab" data-toggle="tab">Edit</a></li>
+        @endif
+        @if($isUserAlbumCreator)
+        <li class=""><a href="#upload-in-album-tab" data-toggle="tab">Upload</a></li>
+        @endif
+    </ul>
+    <div id="myTabContent" class="tab-content">
 
-    <p>{{ Form::label('photoName', 'Photo name') }}</p>
-    <p>{{ Form::text('photoName') }}</p>
+        <div class="tab-pane fade active in" id="comment-in-album-tab">
 
-    <p>{{ Form::label('shDescription', 'Photo short description') }}</p>
-    <p>{{ Form::text('shDescription') }}</p>
+            <div class="panel-group" id="accordion">
+                @for ($i = 0; $i < sizeOf($comments); $i++)
 
-    <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
-    <p>{{ Form::text('placeTaken') }}</p>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                @if($isUserHavingPrivilegies)
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                @endif
+                                <a data-toggle="collapse" data-parent="#accordion" href="#comment{{ $comments[$i]->comment_id }}">
+                                    <p>
+                                        @if($comments[$i]->username)
+                                            {{ $comments[$i]->username }}
+                                        @else
+                                            {{ $comments[$i]->commenter_ip }}
+                                        @endif
+                                        {{ $comments[$i]->created_at }}
+                                    </p>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="comment{{ $comments[$i]->comment_id }}" class="panel-collapse collapse">
+                            {{ Form::hidden('albumId', $albumId)}}
+                            <div class="panel-body">
+                                {{ $comments[$i]->comment }}
+                            </div>
+                        </div>
+                    </div>
 
-    <p>{{ Form::label('tags', 'add tags') }}</p>
-    <p>{{ Form::select('tags[]', $allExistingTags, null, array('multiple'=>true, 'id' => 'tags')) }}</p>
+                @endfor
+            </div>
+            <div class="panel panel-default">
 
-    <p>{{ Form::file('photos', array('multiple'=>true, 'id' => 'photos_id')) }}</p>
+                <div id="likers" class="panel-heading panel-collapse collapse in">
+                    <div class="panel-body">
+                        {{ Form::textarea('comment', '', array('class' => 'form-control', 'rows' => '3', 'placeholder' => 'write here')) }}
+                        {{ Form::submit('Comment', array('class' => 'btn btn-primary btn-lg btn-block album-comment-button')) }}
+                    </div>
+                </div>
+            </div>
 
-    <p>{{ Form::label('titlePhoto', 'Make album title photo?') }}</p>
-    <p>{{ Form::checkbox('titlePhoto', true, array('class' => 'check')) }}</p>
+        </div>
+        @if($isUserAlbumCreator)
+        <div class="tab-pane fade" id="edit-album-tab">
+            {{ Form::open(array('files'=> true, 'method' => 'post', 'id' => 'edit-album-data-form', 'class' => 'form-hidden')) }}
 
-    <p>{{ Form::submit('Upload') }}</p>
+            {{ Form::hidden('albumId', $albumId)}}
 
-    {{ Form::token() }}
-    {{ Form::close() }}
-    <p>{{--Form::submit('Upload', array('class' => 'submit-upload'))--}}</p>
+            <p>{{ Form::label('albumName', 'Album name') }}</p>
+            <p>{{ Form::text('albumName', $albumData->album_name) }}</p>
+
+            <p>{{ Form::label('shDescription', 'Album short description') }}</p>
+            <p>{{ Form::text('shDescription', $albumData->album_short_description) }}</p>
+
+            <p>{{ Form::label('fullDescription', 'Album full description') }}</p>
+            <p>{{ Form::text('fullDescription', $albumData->album_full_description) }}</p>
+
+            <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
+            <p>{{ Form::text('placeTaken', $albumData->album_place) }}</p>
+
+            <p>{{ Form::label('albumTitlePhoto', 'Title photo') }}</p>
+            <p>{{ Form::file('albumTitlePhoto') }}</p>
+
+            <p>{{ Form::submit('Edit', array('class' => 'btn btn-primary')) }}</p>
+
+            {{ Form::token() }}
+            {{ Form::close() }}
+        </div>
+        @endif
+        @if($isUserAlbumCreator)
+        <div class="tab-pane fade" id="upload-in-album-tab">
+            {{ Form::open(array('files'=> true, 'method' => 'post', 'id' => 'upload-photos-to-album-form', 'class' => 'form-hidden')) }}
+
+            {{ Form::hidden('albumId', $albumId)}}
+
+            <p>{{ Form::label('photoName', 'Photo name') }}</p>
+            <p>{{ Form::text('photoName') }}</p>
+
+            <p>{{ Form::label('shDescription', 'Photo short description') }}</p>
+            <p>{{ Form::text('shDescription') }}</p>
+
+            <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
+            <p>{{ Form::text('placeTaken') }}</p>
+
+            <p>{{ Form::label('tags', 'add tags') }}</p>
+            <p>{{ Form::select('tags[]', $allExistingTags, null, array('multiple'=>true, 'id' => 'tags')) }}</p>
+
+            <p>{{ Form::file('photos[]', array('multiple'=>true, 'id' => 'photos_id')) }}</p>
+
+            <p>{{ Form::label('titlePhoto', 'Make album title photo?') }}</p>
+            <p>{{ Form::checkbox('titlePhoto', true, array('class' => 'check')) }}</p>
+
+            <p>{{ Form::submit('Upload', array('id' => 'upload-photo-button', 'class' => 'btn btn-success', 'data-loading-text' => 'Loading...')) }}</p>
+
+            {{ Form::token() }}
+            {{ Form::close() }}
+        </div>
+        @endif
+    </div>
 </div>
+<hr>
 
-</br></br>
-<div class="aaa"></div>
+</br>
 
-<div id="photos">
-    @for ($i = 0; $i < sizeOf($album_photos_info_array); $i++)
-    <div class="photo-link" data-id="{{ $album_photos_info_array[$i]['photo_id'] }}">
-        <a href="{{ URL::to('albums/'.$albumId.'/photo/'.$album_photos_info_array[$i]['photo_id']) }}">
-            <img src="{{ URL::to($album_photos_info_array[$i]['photo_destination_url']) }}" alt="First">
-        </a>
-        <p><input id="delete-photo" type="submit" value="DELETE"\></p>
+<div class="row">
+    @for ($i = 0; $i < sizeOf($albumPhotos); $i++)
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+            <h3>{{ $albumPhotos[$i]->photo_name }}</h3>
+            <a href="{{ URL::to('albums/'.$albumPhotos[$i]->album_id.'/photo/'.$albumPhotos[$i]->photo_id) }}">
+                @if($albumPhotos[$i]->photo_thumbnail_destination_url && is_file($albumPhotos[$i]->photo_thumbnail_destination_url))
+                {{ HTML::image($albumPhotos[$i]->photo_thumbnail_destination_url, $albumPhotos[$i]->photo_short_description) }}
+                @else
+                {{ HTML::image('assets/img/no-image-thumb.jpg', $albumPhotos[$i]->photo_short_description, array('width' => '200', 'height' => '200')) }}
+                @endif
+            </a>
+            <div class="caption photo-link" data-id="{{ $albumPhotos[$i]->photo_id }}">
+                <p>{{ $albumPhotos[$i]->photo_short_description }} </p>
+                <p>
+                    @if($isUserAlbumCreator)
+                    {{ HTML::link(URL::to('albums/'.$albumPhotos[$i]->album_id.'/photo/'.$albumPhotos[$i]->photo_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
+                    @endif
+                    @if($isUserHavingPrivilegies)
+                    {{ Form::submit('Delete', array('id' => 'delete-photo', 'class' => 'btn btn-danger')) }}
+                    @endif
+                </p>
+            </div>
+        </div>
     </div>
     @endfor
-
-    <div class="clear"></div>
 </div>
-
-
-<div class='div_komentaru_blokas'>
-    <span>comments:</span>
-    <div class='div_komentaro_blokas'>
-        <p>{{ Form::submit('Like', array('class' => 'album-like-button')) }}</p>
-        <p>{{ $all_likes_count }}</p>
-        @for ($i = 0; $i < sizeOf($likes_array); $i++)
-            {{ $likes_array[$i] }},
-        @endfor
-    </div>
-
-        @for ($i = 0; $i < sizeOf($comments_array); $i++)
-        <div class='div_komentaro_blokas'>
-            <div class='div_komentaro_pav'>
-                #{{ $comments_array[$i]['user_id'] }}
-            </div>
-            <div class='div_komentaras_irasas'>
-                <b id='user'>{{ $comments_array[$i]['username'] }}: </b>{{ $comments_array[$i]['comment'] }}
-            </div>
-            <div class='div_kom_data'>
-                {{ $comments_array[$i]['created_at'] }}
-            </div>
-        </div>
-        @endfor
-
-        <div class="div_komentaro_blokas">
-            <div class="div_komentaro_pav">
-                *
-            </div>
-            {{--Form::open(array('route' => 'album.comment', 'method' => 'post', 'id' => 'comment-album'))--}}
-                <div class="div_komentaras_irasas">
-                    {{ Form::text('comment', 'write here', array('class' => 'komentaras')) }}
-                </div>
-                <div class="div_kom_submit">
-                    <div class="div_kom_submitL">
-                    </div>
-                    <div class="div_kom_submitR">
-
-                        {{ Form::submit('Comment', array('class' => 'album-comment-button')) }}
-                    </div>
-                    <div class="div_kom_submitC">
-                    </div>
-                </div>
-            {{--Form::token()--}}
-            {{--Form::close()--}}
-        </div>
-
-</div>
-
-
-{{--HTML::script('js/jquery-1.10.2.min.js')--}}
-<!-- Required script for photos showing on home page -->
-{{ HTML::script('js/upload-and-show-photos.js') }}

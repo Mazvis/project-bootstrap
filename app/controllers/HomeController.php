@@ -19,30 +19,71 @@ class HomeController extends BaseController {
      */
     public function showHome() {
         $this->layout->content = View::make('home');
+        $this->layout->bodyclass = "home-page";
 
-        $home = new Home();
-        $photoUrlArray = $home->getPhotos();
-
-        $this->layout->content->photos_url = $photoUrlArray;
-    }
-    //Show photos in home page
-    public function showPhotos() {
-        $home = new Home;
-        return $home->getPhotosJson();
+        $photo = new Photo();
+        $this->layout->content->photo_data_array2 = $photo->getAllPhotoData();
     }
 
     /**
      * Show the user profile page.
      */
     public function showProfile() {
-        $this->layout->content = View::make('profile');
+        if(Auth::check()){
+            $this->layout->bodyclass = "home-page";
+            $value = Session::get('user.id', Auth::user()->id);
+            $this->layout->content = View::make('profile', array('user' => User::find($value)));
+
+            $album = new AlbumController();
+            $this->layout->content->userAlbums = $album->getAllUserAlbums(Auth::user()->id);
+        }
+        else
+            return Redirect::to('login');
+    }
+
+
+    public function showProfilePost()
+    {
+        $rules = array('first_name' => 'required|min:3|max:80|alpha',
+            'last_name' => 'required|min:3|max:80|alpha');
+
+        $validator = Validator::make(Input::all(), $rules);
+        if ($validator->fails()) {
+            return Redirect::to('profile')->withErrors($validator);
+        }
+    }
+
+    /*
+     * Show user profile.
+     */
+    public function showUserProfile($username)
+    {
+        $userModel = new User();
+        $userData = $userModel->getUserDataByUserName($username);
+
+        if($userData){
+            if(Auth::check() && Auth::user()->id == $userData[0]->id)
+                return Redirect::to('profile');
+            else{
+                $this->layout->content = View::make('user', array('user' => User::find($userData[0]->id)));
+                $this->layout->bodyclass = "home-page";
+
+                $album = new AlbumController();
+                $this->layout->content->userAlbums = $album->getAllUserAlbums($userData[0]->id);
+            }
+        }
+        else
+            $this->showNotFoundPage();
     }
 
     /**
      * Show the login page.
      */
     public function showLogin() {
+        if(Auth::check())
+            return Redirect::to("/");
         $this->layout->content = View::make('login');
+        $this->layout->bodyclass = "home-page";
     }
 
     /**
@@ -50,8 +91,10 @@ class HomeController extends BaseController {
      */
     public function showAlbums() {
         $this->layout->content = View::make('albums');
+        $this->layout->bodyclass = "home-page";
+
         $albums = new AlbumsController();
-        $this->layout->content->album_photos_info_array = $albums->getAlbumsData();
+        $this->layout->content->allAlbums = $albums->getAllAlbums();
     }
 
     /**
@@ -61,49 +104,67 @@ class HomeController extends BaseController {
     {
         $photo = new PhotoController();
         $album = new AlbumController();
-        $albumName = $album->getAlbumNameById($albumId);
 
-        if($albumName){
+        $albumData = $album->getAlbumDataByAlbumId($albumId);
+        //if album exist
+        if($albumData){
             $this->layout->content = View::make('singlealbum', array('albumId' => $albumId));
+            $this->layout->bodyclass = "home-page";
 
-            $this->layout->content->viewsCount = $album->countViews($albumId);
+            $album->countViews($albumId);
             $this->layout->content->albumId = $albumId;
 
-            $this->layout->content->album_photos_info_array = $album->getPhotos($albumId);
-            $this->layout->content->album_info_array = $album->getAlbumTitlePhotoUrlById($albumId);
 
-            $this->layout->content->all_likes_count = $album->getAllLikesCount($albumId);
-            $this->layout->content->likes_array = $album->getlikesArray($albumId);
-            $this->layout->content->comments_array = $album->getCommentsArray($albumId);
+            $this->layout->content->albumPhotos = $album->getAlbumPhotos($albumId);
+            $this->layout->content->albumData = $albumData[0];
 
+            //likes
+            $this->layout->content->likes = $album->getAlbumLikes($albumId);//+
+            $this->layout->content->isLikeAlreadyExists = $album->isLikeAlreadyExists($albumId);//+
+
+            //comments
+            $this->layout->content->comments = $album->getAlbumComments($albumId);//+
+
+            //tags
             $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+
+            //roles
+            $this->layout->content->isUserHavingPrivilegies = $album->isUserHavingPrivilegies($albumId);
+
+            $this->layout->content->isUserAlbumCreator = $album->isUserAlbumCreator($albumId);
         }
         else
             $this->showNotFoundPage();
     }
 
-    /**
-     * Show the photo page.
-     */
+    /*
+    * Show the photo page.
+    */
     public function showSinglePhoto($albumId, $photoId) {
 
-        //$album = new AlbumController();
-        //$albumName = $album->getAlbumNameById($albumId);
-
         $photo = new PhotoController();
-        $photoName = $photo->getPhotoNameByAlbumAndPhotoId($albumId,$photoId);
-        if($photoName){
+
+        //if photo and album exist
+        $photoData = $photo->getPhotoDataByPhotoId($photoId, $albumId);
+        if($photoData){
             $this->layout->content = View::make('singlephoto', array('albumId' => $albumId, 'photoId' => $photoId));
+            $this->layout->bodyclass = "home-page";
 
-            $this->layout->content->viewsCount = $photo->countViews($photoId);
-            $this->layout->content->photo_data_array = $photo->getPhotoData($photoId);
+            $photo->countViews($photoId);
+            //photo data
+            $photoData = $photo->getPhotoDataByPhotoId($photoId, $albumId);
+            $this->layout->content->photoData = $photoData[0];
 
-            $this->layout->content->all_likes_count = $photo->getAllLikesCount($photoId);
-            $this->layout->content->likes_data = $photo->getLikesArray($photoId);
-            $this->layout->content->comments_array = $photo->getCommentsArray($photoId);
-
-            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+            //tags
             $this->layout->content->tags = $photo->getTagsData($photoId);
+            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+
+            //likes
+            $this->layout->content->likes = $photo->getPhotoLikes($photoId);
+            $this->layout->content->isLikeAlreadyExists = $photo->isLikeAlreadyExists($photoId);
+
+            //comments
+            $this->layout->content->comments = $photo->getPhotoComments($photoId);
         }
         else
             $this->showNotFoundPage();
@@ -114,12 +175,14 @@ class HomeController extends BaseController {
      */
     public function showTagPage($tagName) {
         $photo = new PhotoController();
-        $tagId = $photo->getTagId($tagName);
-        //if this tag exists:
-        if($tagId){
+
+        $tag = $photo->getTagData($tagName);
+        //if this tag exists
+        if($tag){
             $this->layout->content = View::make('tag', array('tagName' => $tagName));
-            $this->layout->content->tagId = $tagId;
-            $this->layout->content->photo_data_array = $photo->getPhotoDataByTag($tagId);
+            $this->layout->bodyclass = "home-page";
+
+            $this->layout->content->photos = $photo->getPhotoDataByTagId($tag[0]->tag_id);
         }
         else
             $this->showNotFoundPage();
@@ -130,6 +193,18 @@ class HomeController extends BaseController {
      */
     public function showNotFoundPage() {
         $this->layout->content = View::make('404');
+        $this->layout->bodyclass = "home-page";
+    }
+
+    /**
+     * Show the registration page.
+     */
+    public function showRegistration()
+    {
+        if(Auth::check())
+            return Redirect::to("/");
+        $this->layout->content = View::make('registration');
+        $this->layout->bodyclass = "home-page";
     }
 
 }
