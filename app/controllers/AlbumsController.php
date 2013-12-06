@@ -1,7 +1,15 @@
 <?php
 
+/**
+ * Class AlbumsController
+ */
 class AlbumsController extends BaseController {
 
+    /**
+     * Creates album and redirects page
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function createAlbum() {
 
         if(Auth::check()){
@@ -19,6 +27,11 @@ class AlbumsController extends BaseController {
         return Redirect::back();
     }
 
+    /**
+     * Returs all albums array and show in albums page
+     *
+     * @return mixed
+     */
     public function getAllAlbums(){
         $albums = new Albums();
         return $albums->getAllAlbums();

@@ -1,6 +1,6 @@
 <h1>User({{ $user->username }})</h1>
 
-    <div class="profile-view">
+    <div class="">
         <div class="row">
             <div class="col-sm-3">
                 <div class="profile-img">

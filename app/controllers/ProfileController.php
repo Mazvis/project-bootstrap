@@ -1,7 +1,16 @@
 <?php
 
+/**
+ * Class ProfileController
+ */
 class ProfileController extends BaseController
 {
+    /**
+     * Changes users name and last name data
+     *
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function profileNamePost(User $user)
     {
         $rules = array('name' => 'required|min:3|max:80|alpha',
@@ -18,6 +27,12 @@ class ProfileController extends BaseController
         }
     }
 
+    /**
+     * Changes user email
+     *
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function profileEmailPost(User $user)
     {
         $rules = array('email' => 'required|email|unique:users,email',
@@ -39,6 +54,12 @@ class ProfileController extends BaseController
         }
     }
 
+    /**
+     * Changes user password in profile page
+     *
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function profilePasswordPost(User $user)
     {
         $rules = array('old_password' => 'required|min:6|max:40',
@@ -59,45 +80,12 @@ class ProfileController extends BaseController
                 $user->save();
                 return Redirect::to('profile')->with('password_changed', 'Password changed successful');
             }
-            //var_dump('bbbbb');
             return Redirect::to('profile')->with('password_changed', 'New password do not match');
         }
         else {
-            //var_dump('aaaa');
             return Redirect::to('profile')->with('password_changed', 'Current password do not match');
         }
 
-    }
-
-    public function uploadProfilePic(){
-        $filename = (string)Auth::user()->id.'.jpg';
-        $input = Input::all();
-        if ($handle = opendir('uploads')) {
-            while (false !== ($entry = readdir($handle))) {
-                if ($entry != "." && $entry != "..") {
-                    if($entry == $filename) {
-                        @unlink($entry);
-                    }
-                }
-            }
-            closedir($handle);
-        }
-        $rules = array(
-            'photo' => 'mimes:jpeg,jpg,bmp,png,gif|max:3000'
-        );
-        $validator = Validator::make($input, $rules);
-        if($validator->fails()){
-            return Redirect::to('profile')->with('upload_file','Error. You use wrong file format. Please try again!');
-        }
-        $destinationPath = 'uploads';
-        $uploadSuccess = Input::file('photo')->move($destinationPath, $filename);
-
-        if( $uploadSuccess ) {
-            //return Response::json('success', 200); // or do a redirect with some message that file was uploaded
-            return Redirect::to('profile')->with('upload_file','Image successful changed!');
-        } else {
-            return Redirect::to('profile')->with('upload_file','Uploading failed. Please try again.');
-        }
     }
 
 }

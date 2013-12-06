@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class BaseController
+ */
 class BaseController extends Controller {
 
     /**
@@ -13,7 +16,6 @@ class BaseController extends Controller {
      * @return void
      */
     protected function setupLayout() {
-        $photo = new Photo();
         $photoC = new PhotoController();
         $albumC = new AlbumController();
         if (!is_null($this->layout)) {
@@ -29,13 +31,13 @@ class BaseController extends Controller {
             $this->layout->recentAlbums = $albumC->recentAlbums();
 
             //gets random photo from gallery
-            $randPhoto = $photo->getRandomPhoto();
+            $randPhoto = $photoC->getRandomPhoto();
             if($randPhoto)
                 $randPhoto = $randPhoto[0];
             $this->layout->randomPhoto = $randPhoto;
 
             //gets most viewed photo in gallery
-            $mostViewedPhoto = $photo->getMostViewedPhoto();
+            $mostViewedPhoto = $photoC->getMostViewedPhoto();
             if($mostViewedPhoto)
                 $mostViewedPhoto = $mostViewedPhoto[0];
             $this->layout->mostViewedPhoto = $mostViewedPhoto;

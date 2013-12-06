@@ -1,14 +1,19 @@
 <?php
 
+/**
+ * Class Albums
+ */
 class Albums{
 
     /**
+     * Creates album
+     *
      * @param $currentUserId
      * @param $albumName
      * @param $shortDescription
      * @param $fullDescription
      * @param $placeTaken
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse redirects page if success
      */
     public function createAlbum($currentUserId, $albumName, $shortDescription, $fullDescription, $placeTaken){
 
@@ -26,6 +31,8 @@ class Albums{
     }
 
     /**
+     * Gets all albums from database
+     *
      * @return mixed
      */
     public function getAllAlbums(){

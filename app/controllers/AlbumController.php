@@ -1,9 +1,19 @@
 <?php
+
 /**
  * Class AlbumController
  */
 class AlbumController extends BaseController {
 
+/*
+ * UPLOADING/ EDITING
+ */
+
+    /**
+     * Uploads photo/photos to album
+     *
+     * @return mixed
+     */
     public function uploadPhoto() {
         $currentAlbumId = Input::get('albumId');
 
@@ -31,6 +41,11 @@ class AlbumController extends BaseController {
         //return $this->getPhotos($currentAlbumId);
     }
 
+    /**
+     * Gets values from inputs ant edits album data
+     *
+     * @return mixed
+     */
     public function editAlbum() {
         $currentAlbumId = Input::get('albumId');
 
@@ -50,14 +65,46 @@ class AlbumController extends BaseController {
 
                 $album = new Album;
 
-                $album->editAlbum($currentAlbumId, $currentUserID, $albumName, $shortDescription, $fullDescription, $placeTaken, $titlePhotoFile);
+                return $album->editAlbum($currentAlbumId, $currentUserID, $albumName, $shortDescription, $fullDescription, $placeTaken, $titlePhotoFile);
             }
         }
         //return Redirect::to('albums/'.$currentAlbumId);
     }
 
-    /*
-     * Deletes
+/*
+ * GETS
+ */
+
+    /**
+     * Gets all single album photos
+     *
+     * @param $albumId
+     * @return mixed
+     */
+    public function getAlbumPhotos($albumId){
+        $album = new Album();
+        return $album->getAlbumPhotos($albumId);
+    }
+
+    /**
+     * Gets single album data
+     *
+     * @param $albumId
+     * @return mixed
+     */
+    public function getAlbumDataByAlbumId($albumId){
+        $album = new Album();
+        return $album->getAlbumDataByAlbumId($albumId);
+    }
+
+/*
+ * DELETES
+ */
+
+    /**
+     * Deletes photo from album
+     *
+     * @return string message
      */
     public function deletePhoto(){
 
@@ -73,6 +120,11 @@ class AlbumController extends BaseController {
         return "not singned in or havent rules to delete";
     }
 
+    /**
+     * Deletes album in album page
+     *
+     * @return string
+     */
     public function deleteAlbum(){
 
         if(Auth::check()){
@@ -87,24 +139,26 @@ class AlbumController extends BaseController {
         return "u have no rules";
     }
 
-    public function getAlbumPhotos($albumId){
-        $album = new Album();
-        return $album->getAlbumPhotos($albumId);
-    }
-
-    public function getAlbumDataByAlbumId($albumId){
-        $album = new Album();
-        return $album->getAlbumDataByAlbumId($albumId);
-    }
-
-    /*
-     * Likes
+/*
+ * LIKES
+ */
+    /**
+     * Gets album likes
+     *
+     * @param $albumId
+     * @return mixed
      */
     public function getAlbumLikes($albumId){
         $album = new Album();
         return $album->getAlbumLikes($albumId);
     }
 
+    /**
+     * Checks if user is already liked current album
+     *
+     * @param $currentAlbumId
+     * @return int|string
+     */
     public function isLikeAlreadyExists($currentAlbumId){
         $album = new Album();
         if(Auth::check()){
@@ -114,12 +168,22 @@ class AlbumController extends BaseController {
         return "u not signed in";
     }
 
+    /**
+     * Makes like in album
+     *
+     * @return mixed
+     */
     public function makeLike(){
         if(Auth::check())
             if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
                 return $this->makeALike();
     }
 
+    /**
+     * Makes like
+     *
+     * @return mixed
+     */
     public function makeALike(){
         $album = new Album();
         $currentAlbumId = Input::get('albumId');
@@ -129,14 +193,26 @@ class AlbumController extends BaseController {
         }
     }
 
-    /*
-     * Comments
+/*
+ * COMMENTS
+ */
+
+    /**
+     * Gets all album comments
+     *
+     * @param $albumId
+     * @return mixed
      */
     public function getAlbumComments($albumId){
         $album = new Album();
         return $album->getAlbumComments($albumId);
     }
 
+    /**
+     * Writes comment
+     *
+     * @return mixed
+     */
     public function writeComment(){
         $album = new Album();
 
@@ -151,28 +227,52 @@ class AlbumController extends BaseController {
         return $album->writeComment($comment, $currentAlbumId, $currentUserID, $posterIp);
     }
 
+    /**
+     * Deletes selected comment
+     *
+     * @return string
+     */
     public function deleteComment(){
         $commentId = Input::get('commentIdToDelete');
         $album = new Album();
         return $album->deleteComment($commentId);
     }
 
-    /*
-     * Views
+/*
+ * VIEWS
+ */
+
+    /**
+     * Counts album views
+     *
+     * @param $albumId
      */
     public function countViews($albumId){
         $album = new Album();
         return $album->countViews($albumId);
     }
 
-    /*
-     * All user albums for user page
+/*
+ * USER
+ */
+
+    /**
+     * Gets all chosen user albums
+     *
+     * @param $userId
+     * @return mixed
      */
     public function getAllUserAlbums($userId){
         $album = new Album;
         return $album->getAllUserAlbums($userId);
     }
 
+    /**
+     * Checks if user is album creator
+     *
+     * @param $albumId
+     * @return int
+     */
     public function isUserAlbumCreator($albumId){
         $album = new Album;
         $currentUserId = 0;
@@ -181,6 +281,12 @@ class AlbumController extends BaseController {
         return $album->isUserAlbumCreator($currentUserId, $albumId);
     }
 
+    /**
+     * Checks if user having privileges
+     *
+     * @param $albumId
+     * @return int
+     */
     public function isUserHavingPrivilegies($albumId){
         $album = new Album;
 
@@ -192,6 +298,15 @@ class AlbumController extends BaseController {
         return 0;
     }
 
+/*
+ * SIDEBAR CONTENT
+ */
+
+    /**
+     * Gets five recent created albums
+     *
+     * @return mixed
+     */
     public function recentAlbums(){
         $album = new Album();
         return $album->recentAlbums();

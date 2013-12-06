@@ -85,20 +85,20 @@ body.register-page form {
 
 .main-sidebar {
     height: 100%;
-    width: 25%; /*30*/
-    float: right; /*left*/
+    width: 25%;
+    float: right;
     position: relative;
     background: #fff;
     border: 1px solid #eee;
     border-right: none;
     padding: 15px;
-    overflow: auto;  /*hidden;*/ /*auto*/
+    overflow: auto;
 }
 
 .main-content {
-    float: left; /*right*/
+    float: left;
     height: 100%;
-    width: 75%; /*70*/
+    width: 75%;
     background: #fff;
     position: relative;
     border: 1px solid #eee;
@@ -106,9 +106,8 @@ body.register-page form {
     overflow: auto;
 }
 
-/**/
 .main-content .full-screen {
-    z-index: 1100px;
+    z-index: 1100;
     position: fixed;
     font-size: 0;
     right: 0;
@@ -390,5 +389,5 @@ body.register-page form {
 }
 
 .alert-process{
- display:none;
+    display:none;
 }

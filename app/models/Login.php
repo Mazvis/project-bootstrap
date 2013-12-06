@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * Class Login
+ */
 class Login{
 
+    /**
+     * checks user for signing in
+     *
+     * @param $username
+     * @param $password
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function auth($username, $password){
         // get POST data
         $userdata = array(
@@ -11,9 +21,6 @@ class Login{
 
         if ( Auth::attempt($userdata) )
         {
-            // logged in, go to home
-            //return Redirect::to('/');
-            //return URL::to('/');
             return Redirect::back();
         }
         else
@@ -26,6 +33,5 @@ class Login{
     public function logout(){
         Auth::logout();
         return Redirect::back();
-        //return URL::to('login');
     }
 }

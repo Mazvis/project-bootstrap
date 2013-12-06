@@ -1,19 +1,28 @@
 <?php
 
+/**
+ * Class Photo
+ */
 class Photo{
 
-    public function getPhotoDataByPhotoId($photoId, $albumId){
-        $photos = DB::select('SELECT photos.* , users.username, albums.album_name
-        FROM photos
-        LEFT JOIN users ON photos.user_id = users.id
-        LEFT JOIN albums ON photos.album_id = albums.album_id
-        WHERE photos.photo_id = ? AND albums.album_id = ?
-        GROUP BY photos.photo_id', array($photoId, $albumId));
+/*
+ * EDIT
+ */
 
-        return $photos;
-    }
-
-    //***//
+    /**
+     * Edits photo
+     *
+     * @param $currentAlbumId
+     * @param $currentPhotoId
+     * @param $currentUserID
+     * @param $photoName
+     * @param $shortDescription
+     * @param $placeTaken
+     * @param $selectedCategories
+     * @param $editedTags
+     * @param $albumTitlePhoto
+     * @return string
+     */
     public function editPhoto($currentAlbumId, $currentPhotoId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedCategories, $editedTags, $albumTitlePhoto) {
         //-----------------Editing photo data---------------------//
         //update photo data
@@ -26,19 +35,7 @@ class Photo{
                 )
             );
 
-        //deletes old tags and insert new
-        //DB::table('photo_tags')->where('photo_id', $currentPhotoId)->delete(); //temporary
-        /*for($i = 0; $i < sizeOf($selectedTags); $i++)
-            DB::table('photo_tags')->insert(
-                array(
-                    'photo_id' => $currentPhotoId,
-                    'tag_id' => (int)$selectedTags[$i],
-                )
-            );*/
         //categories
-
-        //DB::table('photo_categories')->where('photo_id', $currentPhotoId)->delete(); //temporary
-
         for($i = 0; $i < sizeOf($selectedCategories); $i++){
             $catId = DB::select('select * from categories where category_name = ?', array($selectedCategories[$i]));
             if($catId){
@@ -70,8 +67,6 @@ class Photo{
             DB::update('update photo_tags set tags = ? where photo_id = ?', array($tagLine, $currentPhotoId));
         else
             DB::insert('insert into photo_tags (photo_id, tags) values (?,?)', array($currentPhotoId, $tagLine));
-
-
 
         //-----------------Editing album title photo data---------------------//
         if($albumTitlePhoto){
@@ -149,55 +144,40 @@ class Photo{
             return 'Edited';
 
         }
-        /*
-        if($albumTitlePhoto){
-
-            //gets old title url
-            $titlePhoto = DB::table('albums_title_photos')->where('album_id', $currentAlbumId)->get();
-            //deletes old title photo from directory
-            if($titlePhoto)
-                File::delete($titlePhoto[0]->title_photo_destination_url);
-
-
-            $titlePhotos = DB::table('photos')->where('photo_id', $currentPhotoId)->get();
-            if($titlePhotos)
-                $newTitlePhotoUrl = $titlePhotos[0]->photo_destination_url;
-
-            $extension = File::extension($newTitlePhotoUrl);
-            $size = File::size($newTitlePhotoUrl);
-
-            //uploads new title photo
-            $titleDestinationPath = 'uploads/'.$albumCreatorId.'/albums/'.$currentAlbumId.'/title_photo';
-            File::copy($newTitlePhotoUrl, $titleDestinationPath."/".$currentAlbumId.".".$extension);
-
-            DB::table('albums_title_photos')->where('album_id',$titlePhoto[0]->album_id)->delete();
-
-            $insertedTitlePhotoId = DB::table('albums_title_photos')->insertGetId(
-                array(
-                    'title_photo_destination_url' => $titleDestinationPath."/".$currentAlbumId.".".$extension,
-                    'title_photo_thumbnail_destination_url' => null,
-                    'album_id' => $currentAlbumId,
-                    'user_id' => $albumCreatorId,
-                    'photo_size' => $size
-                )
-            );
-            DB::table('albums')
-                ->where('album_id', $currentAlbumId)
-                ->update(array('album_title_photo_id' => $insertedTitlePhotoId));
-
-
-            /*DB::table('albums_title_photos')
-                ->where('title_photo_id', $titlePhotoId)
-                ->update(array(
-                        'title_photo_destination_url' => $titleDestinationPath."/".$currentAlbumId.".".$extension,
-                        'photo_size' => $size
-                    )
-                );
-
-        }*/
     }
 
-    //***//
+/*
+ * GETS
+ */
+
+    /**
+     * Gets photo data
+     *
+     * @param $photoId
+     * @param $albumId
+     * @return mixed
+     */
+    public function getPhotoDataByPhotoId($photoId, $albumId){
+        $photos = DB::select('SELECT photos.* , users.username, albums.album_name
+        FROM photos
+        LEFT JOIN users ON photos.user_id = users.id
+        LEFT JOIN albums ON photos.album_id = albums.album_id
+        WHERE photos.photo_id = ? AND albums.album_id = ?
+        GROUP BY photos.photo_id', array($photoId, $albumId));
+
+        return $photos;
+    }
+
+/*
+ * DELETES
+ */
+
+    /**
+     * Deltes photo
+     *
+     * @param $photoId
+     * @return mixed
+     */
     public function deletePhoto($photoId){
         $success = null;
         //deletes all photo likes
@@ -224,8 +204,15 @@ class Photo{
         return $s;
     }
 
-    /*
-     * Likes
+/*
+ * LIKES
+ */
+
+    /**
+     * Return photo likes
+     *
+     * @param $photoId
+     * @return mixed
      */
     public function getPhotoLikes($photoId){
         return DB::select('SELECT likes.*, users.username
@@ -234,6 +221,13 @@ class Photo{
         WHERE photo_id = ?', array($photoId));
     }
 
+    /**
+     * Checks if photo is already liked by signed user
+     *
+     * @param $photoId
+     * @param $currentUserID
+     * @return int
+     */
     public function isLikeAlreadyExists($photoId, $currentUserID){
         $likes = DB::select('select * from likes where photo_id = ? and user_id = ?', array($photoId, $currentUserID));
         if($likes)
@@ -241,6 +235,13 @@ class Photo{
         return 0;
     }
 
+    /**
+     * Makes like
+     *
+     * @param $photoId
+     * @param $currentUserID
+     * @return mixed
+     */
     public function makeLike($photoId, $currentUserID){
         $isExist = $this->isLikeAlreadyExists($photoId, $currentUserID);
         if($isExist == 0 && $currentUserID != null){
@@ -257,8 +258,15 @@ class Photo{
         return $currentUserID;
     }
 
-    /*
-     * Comments
+/*
+ * COMMENTS
+ */
+
+    /**
+     * Returns photo Comment array
+     *
+     * @param $photoId
+     * @return mixed
      */
     public function getPhotoComments($photoId){
         return DB::select('SELECT comments.*, users.username
@@ -267,6 +275,15 @@ class Photo{
         WHERE photo_id = ?', array($photoId));
     }
 
+    /**
+     * Writes comment in photo
+     *
+     * @param $comment
+     * @param $currentPhotoId
+     * @param $currentUserID
+     * @param $posterIp
+     * @return mixed
+     */
     public function writeComment($comment, $currentPhotoId, $currentUserID, $posterIp){
 
         DB::table('comments')->insert(
@@ -281,18 +298,63 @@ class Photo{
         return $comment;
     }
 
-    /*
-     * Tags
+/*
+ * TAGS
+ */
+
+    /**
+     * Gets photo tags(for editing)
+     *
+     * @param $photoId
+     * @return string
      */
-    public function getAllExistingTags(){
-        $tags = DB::table('tags')->get();
-
-        $array = null;
-        foreach ($tags as $tag)
-            $array[$tag->tag_id] = $tag->tag_name;
-
-        return $array;
+    public function getPhotoTagsRow($photoId){
+        $tags = DB::select('select * FROM photo_tags where photo_id = ?', array($photoId));
+        $tagString = "";
+        foreach($tags as $tag)
+            $tagString = $tagString.$tag->tags;
+        return $tagString;
     }
+
+    /**
+     * Gets photo tags array
+     *
+     * @param $photoId
+     * @return array|mixed|null
+     */
+    public function getPhotoTagNames($photoId){
+        $tags = DB::select('select * FROM photo_tags where photo_id = ?', array($photoId));
+        $explodedTags = null;
+        foreach($tags as $tag){
+            $explodedTags = preg_replace("/[^\w\ _]+/", '', $tag->tags); // strip all punctuation characters, news lines, etc.
+            $explodedTags = preg_split("/\s+/", $explodedTags); // split by left over spaces
+        }
+        return $explodedTags;
+    }
+
+    /**
+     * Returns photos by tag
+     *
+     * @param $tagName
+     * @return mixed
+     */
+    public function getPhotosByTagName($tagName){
+        return DB::select("SELECT photos.*, albums.album_name
+        FROM photos
+        Left join photo_tags on photo_tags.photo_id = photos.photo_id
+        left join albums on albums.album_id = photos.album_id
+        WHERE photo_tags.tags LIKE ?", array('%'.$tagName.'%'));
+    }
+
+/*
+ * CATEGORIES
+ */
+
+    /**
+     * Returns all category array
+     *
+     * @return null
+     */
     public function getAllExistingCategories(){
         $categories = DB::table('categories')->get();
         $array = null;
@@ -301,29 +363,12 @@ class Photo{
         return $array;
     }
 
-    public function getExistingTags(){
-        return $tags = DB::table('tags')->get();
-    }
-
-    public function getTagsData($photoId){
-        $tagsIds = DB::select('select * FROM photo_tags where photo_id = ?', array($photoId));
-        $i = 0;
-        $tagId = null;
-        foreach ($tagsIds as $tag){
-            $tagId[$i++] = $tag->tag_id;
-        }
-
-        $j = 0;
-        $photoData = null;
-        for($i = 0; $i < sizeOf($tagId); $i++){
-            $tagNames = DB::table('tags')->where('tag_id', $tagId[$i])->get();
-            foreach ($tagNames as $tagName)
-                $photoData[$j++] = $tagName->tag_name;
-        }
-
-        return $photoData;
-    }
-
+    /**
+     * Gets photo category data
+     *
+     * @param $photoId
+     * @return null
+     */
     public function getCategoriesData($photoId){
         $tagsIds = DB::select('select * FROM photo_categories where photo_id = ?', array($photoId));
         $i = 0;
@@ -343,38 +388,12 @@ class Photo{
         return $photoData;
     }
 
-    public function getPhotoTagsRow($photoId){
-        $tags = DB::select('select * FROM photo_tags where photo_id = ?', array($photoId));
-        /*if($tags)
-            $tags = $tags[0]->tags;*/
-        $tagString = "";
-        foreach($tags as $tag)
-            $tagString = $tagString.$tag->tags;
-        return $tagString;
-    }
-
-    public function getPhotoTagNames($photoId){
-        $tags = DB::select('select * FROM photo_tags where photo_id = ?', array($photoId));
-        $explodedTags = null;
-        foreach($tags as $tag){
-            $tagStr = $tag->tags;
-            $explodedTags = preg_replace("/[^\w\ _]+/", '', $tag->tags); // strip all punctuation characters, news lines, etc.
-            $explodedTags = preg_split("/\s+/", $explodedTags); // split by left over spaces
-        }
-        return $explodedTags;
-    }
-    //older
-    public function getTagData($tagName){
-        return DB::table('tags')->where('tag_name', $tagName)->get();
-    }
-    //newest
-    public function getPhotosByTagName($tagName){
-        return DB::select("SELECT photos.*, albums.album_name
-        FROM photos
-        Left join photo_tags on photo_tags.photo_id = photos.photo_id
-        left join albums on albums.album_id = photos.album_id
-        WHERE photo_tags.tags LIKE ?", array('%'.$tagName.'%'));
-    }
+    /**
+     * Returns photos by category
+     *
+     * @param $catName
+     * @return mixed
+     */
     public function getPhotosByCatName($catName){
         return DB::select("SELECT photos.*, albums.album_name, categories.*
         FROM photos
@@ -385,13 +404,14 @@ class Photo{
     }
 
     //for admin panel
-    public function createTag($tag){
-        $istag = DB::table('tags')->where('tag_name', $tag)->get();
-        //if tag is not already exist
-        if(!$istag)
-            DB::table('tags')->insert(array('tag_name' => $tag));
-        return Redirect::back();
-    }
+
+    /**
+     * Creates category with this description in database
+     *
+     * @param $tag
+     * @param $tagDescription
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function createCategory($tag, $tagDescription){
         $istag = DB::table('categories')->where('category_name', $tag)->get();
         //if tag is not already exist
@@ -400,25 +420,13 @@ class Photo{
         return Redirect::back();
     }
 
-    public function deleteTag($tag, $selectedTags){
-
-        if($tag){
-            $tagId = null;
-
-            $tagId = DB::table('tags')->where('tag_name', $tag)->get();
-            if($tagId){
-                $tagId = $tagId[0]->tag_id;
-
-        DB::table('photo_tags')->where('tag_id', $tagId)->delete();}
-        DB::table('tags')->where('tag_name', $tag)->delete();
-        }
-
-        for($i = 0; $i < sizeOf($selectedTags); $i++){
-            DB::table('tags')->where('tag_id', $selectedTags[$i])->delete();
-            DB::table('photo_tags')->where('tag_id', $selectedTags[$i])->delete();
-        }
-        return Redirect::back();
-    }
+    /**
+     * Deletes category in DB and form all photos that had this category
+     *
+     * @param $categoryName
+     * @param $selectedCategories
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function deleteCategory($categoryName, $selectedCategories){
 
         if($categoryName){
@@ -444,13 +452,26 @@ class Photo{
         return Redirect::back();
     }
 
-    /*
-     * Views
+/*
+ * VIEWS
+ */
+
+    /**
+     * Count photo views
+     *
+     * @param $photoId
      */
     public function countViews($photoId){
         DB::update('update photos set views = views+1 where photo_id = ?', array($photoId));
     }
 
+    /**
+     * Checks if user is photo creator
+     *
+     * @param $currentUserId
+     * @param $photoId
+     * @return int
+     */
     public function isUserPhotoCreator($currentUserId, $photoId){
         $albums = DB::table('photos')->where('photo_id', $photoId)->get();
         $userId = null;
@@ -460,25 +481,24 @@ class Photo{
             return 1;
         return 0;
     }
-//**********************************//
+
+    /**
+     * Returns all existing photos
+     *
+     * @return mixed
+     */
     public function getAllPhotoData(){
         $photos = DB::select('select photos.*, albums.album_name as album_name from photos left join albums on photos.album_id = albums.album_id order by photos.photo_created_at', array());
         return $photos;
     }
 
-    public function getPhotoDataByTagId($tag_id){
-        return DB::select('
-            select photos.*, albums.album_name
-            from photos
-            left join photo_tags on photo_tags.photo_id = photos.photo_id
-            left join albums on albums.album_id = photos.album_id
-            where photo_tags.tag_id = ?
-            group by photos.photo_id',
-                array($tag_id));
-    }
+/*
+ * SIDEBAR
+ */
 
     /**
      * Gets random photo from database
+     *
      * @return mixed
      */
     public function getRandomPhoto(){
@@ -489,9 +509,13 @@ class Photo{
          ORDER BY photo_id LIMIT 1');*/
     }
 
+    /**
+     * Gets most viewed photo in page
+     *
+     * @return mixed
+     */
     public function getMostViewedPhoto(){
         return $randPhoto = DB::select('SELECT * FROM photos order by views desc limit 1');
     }
-
 
 }

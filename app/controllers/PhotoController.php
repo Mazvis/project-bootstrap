@@ -1,17 +1,19 @@
 <?php
 
+/**
+ * Class PhotoController
+ */
 class PhotoController extends BaseController {
 
-    public function getPhotoDataByPhotoId($photoId, $albumId){
-        $photo = new Photo();
-        return $photo->getPhotoDataByPhotoId($photoId, $albumId);
-    }
+/*
+ * EDIT
+ */
 
-    public function getAllPhotoData(){
-        $photo = new Photo;
-        return $photo->getAllPhotoData();
-    }
-
+    /**
+     * Edits photo information
+     *
+     * @return string
+     */
     public function editPhoto() {
 
         if(Auth::check()){
@@ -35,6 +37,41 @@ class PhotoController extends BaseController {
         }
     }
 
+/*
+ * GETS
+ */
+
+    /**
+     * Returns single photo data
+     *
+     * @param $photoId
+     * @param $albumId
+     * @return mixed
+     */
+    public function getPhotoDataByPhotoId($photoId, $albumId){
+        $photo = new Photo();
+        return $photo->getPhotoDataByPhotoId($photoId, $albumId);
+    }
+
+    /**
+     * Returns all photos with photos data
+     *
+     * @return mixed
+     */
+    public function getAllPhotoData(){
+        $photo = new Photo;
+        return $photo->getAllPhotoData();
+    }
+
+/*
+ * DELETES
+ */
+
+    /**
+     * Deltes photo from photo page
+     *
+     * @return mixed
+     */
     public function deletePhoto(){
         $currentAlbumId = Input::get('albumId');
 
@@ -50,14 +87,27 @@ class PhotoController extends BaseController {
         //return $currentAlbumId;
     }
 
-    /*
-     * Likes
+/*
+ * LIKES
+ */
+
+    /**
+     * Gets all photo likes(likers)
+     *
+     * @param $albumId
+     * @return mixed
      */
     public function getPhotoLikes($albumId){
         $photo = new Photo();
         return $photo->getPhotoLikes($albumId);
     }
 
+    /**
+     * Checks if photo is already liked
+     *
+     * @param $currentPhotoId
+     * @return int|string
+     */
     public function isLikeAlreadyExists($currentPhotoId){
         $photo = new Photo();
         if(Auth::check()){
@@ -67,12 +117,22 @@ class PhotoController extends BaseController {
         return "u not signed in";
     }
 
+    /**
+     * Makes photo like
+     *
+     * @return mixed
+     */
     public function makeLike(){
         if(Auth::check())
             if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
                 return $this->makeALike();
     }
 
+    /**
+     * makes like
+     *
+     * @return mixed
+     */
     public function makeALike(){
         $photo = new Photo();
         $currentPhotoId = Input::get('photoId');
@@ -82,14 +142,26 @@ class PhotoController extends BaseController {
         }
     }
 
-    /*
-     * Comments
+/*
+ * COMMENTS
+ */
+
+    /**
+     * Get all photo comments
+     *
+     * @param $photoId
+     * @return mixed
      */
     public function getPhotoComments($photoId){
         $photo = new Photo();
         return $photo->getPhotoComments($photoId);
     }
 
+    /**
+     * Writes comment
+     *
+     * @return mixed
+     */
     public function writeComment(){
         $photo = new Photo();
 
@@ -104,81 +176,95 @@ class PhotoController extends BaseController {
         return $photo->writeComment($comment, $currentPhotoId, $currentUserID, $posterIp);
     }
 
-    /*
-     * Tags
+/*
+ * TAGS
+ */
+
+    /**
+     * Gets photo tags(for editing)
+     *
+     * @param $photoId
+     * @return string
      */
-    public function getAllExistingTags(){
-        $photo = new Photo;
-        return $photo->getAllExistingTags();
-    }
-    public function getAllExistingCategories(){
-        $photo = new Photo;
-        return $photo->getAllExistingCategories();
-    }
-
-
-    public function getTagsData($photoId){
-        $photo = new Photo;
-        return $photo->getTagsData($photoId);
-    }
-
-    public function getCategoriesData($photoId){
-        $photo = new Photo;
-        return $photo->getCategoriesData($photoId);
-    }
-
     public function getPhotoTagsRow($photoId){
         $photo = new Photo;
         return $photo->getPhotoTagsRow($photoId);
     }
 
+    /**
+     * Gets photo tags array
+     *
+     * @param $photoId
+     * @return array|mixed|null
+     */
     public function getPhotoTagNames($photoId){
         $photo = new Photo;
         return $photo->getPhotoTagNames($photoId);
     }
 
-    public function getTagId($tagName){
-        $photo = new Photo;
-        return $photo->getTagId($tagName);
-    }
-    public function getTagData($tagName){
-        $photo = new Photo;
-        return $photo->getTagData($tagName);
-    }
-
+    /**
+     * Gets photos data by tag
+     *
+     * @param $tagName
+     * @return mixed
+     */
     public function getPhotosByTagName($tagName){
         $photo = new Photo;
         return $photo->getPhotosByTagName($tagName);
     }
 
-    public function getPhotosByCatName($catName){
-        $photo = new Photo;
-        return $photo->getPhotosByCatName($catName);
-    }
-
+    /**
+     * Photo searching by tags
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function searchTag(){
         $tagName = Input::get('photo-search-by-tag');
         $photo = new Photo;
         return Redirect::to('search/'.$tagName);
     }
 
+/*
+ * CATEGORIES
+ */
 
-    public function getPhotoDataByTag($tag_id){
+    /**
+     * Gets all created categories
+     *
+     * @return null
+     */
+    public function getAllExistingCategories(){
         $photo = new Photo;
-        return $photo->getPhotoDataByTag($tag_id);
+        return $photo->getAllExistingCategories();
     }
 
-    public function getPhotoDataByTagId($tag_id){
+    /**
+     * Gets photo category by photo id
+     *
+     * @param $photoId
+     * @return null
+     */
+    public function getCategoriesData($photoId){
         $photo = new Photo;
-        return $photo->getPhotoDataByTagId($tag_id);
+        return $photo->getCategoriesData($photoId);
     }
 
-    //for admin panel
-    public function createTag(){
-        $tag = Input::get('tagName');
+    /**
+     * Gets photos by category name
+     *
+     * @param $catName
+     * @return mixed
+     */
+    public function getPhotosByCatName($catName){
         $photo = new Photo;
-        return $photo->createTag($tag);
+        return $photo->getPhotosByCatName($catName);
     }
+
+    /**
+     * Creates Category
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function createCategory(){
         $tag = Input::get('catName');
         $tagDescription = Input::get('catDescription');
@@ -186,12 +272,11 @@ class PhotoController extends BaseController {
         return $photo->createCategory($tag, $tagDescription);
     }
 
-    public function deleteTag(){
-        $tag = Input::get('tag');
-        $selectedTags = Input::get('tags');
-        $photo = new Photo;
-        return $photo->deleteTag($tag, $selectedTags);
-    }
+    /**
+     * Deletes selected or written category/-ies
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function deleteCategory(){
         $category = Input::get('category');
         $selectedCategories = Input::get('categories');
@@ -199,21 +284,39 @@ class PhotoController extends BaseController {
         return $photo->deleteCategory($category, $selectedCategories);
     }
 
+/*
+ * VIEWS
+ */
 
-
-    /*
-     * Views
+    /**
+     * Count views
+     *
+     * @param $photoId
      */
     public function countViews($photoId){
         $photo = new Photo();
         $photo->countViews($photoId);
     }
 
+/*
+ * SIDEBAR
+ */
+
+    /**
+     * Gets random photo for sidebar
+     *
+     * @return mixed
+     */
     public function getRandomPhoto(){
         $photo = new Photo();
         return $photo->getRandomPhoto();
     }
 
+    /**
+     * Gets most viewed photo for sidebar
+     *
+     * @return mixed
+     */
     public function getMostViewedPhoto(){
         $photo = new Photo();
         return $photo->getMostViewedPhoto();

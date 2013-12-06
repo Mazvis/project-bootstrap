@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class HomeController
+ */
 class HomeController extends BaseController {
     /*
       |--------------------------------------------------------------------------
@@ -55,7 +58,7 @@ class HomeController extends BaseController {
             $this->layout->content->userAlbums = $album->getAllUserAlbums(Auth::user()->id);
 
             $photo = new PhotoController();
-            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+            //$this->layout->content->allExistingTags = $photo->getAllExistingTags();
             $cat = $photo->getAllExistingCategories();
             if($cat)
                 $this->layout->content->allExistingCategories = $cat;
@@ -148,7 +151,7 @@ class HomeController extends BaseController {
             $this->layout->content->comments = $album->getAlbumComments($albumId);//+
 
             //tags
-            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+            //$this->layout->content->allExistingTags = $photo->getAllExistingTags();
             //categories
             $this->layout->content->allExistingCategories = $photo->getAllExistingCategories();
 
@@ -180,10 +183,11 @@ class HomeController extends BaseController {
             $this->layout->content->photoData = $photoData[0];
 
             //tags
-            $this->layout->content->tags = $photo->getTagsData($photoId);
+            //$this->layout->content->tags = $photo->getTagsData($photoId);
             $this->layout->content->photoTags = $photo->getPhotoTagsRow($photoId);
             $this->layout->content->photoTagNames = $photo->getPhotoTagNames($photoId);
-            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+
+            //$this->layout->content->allExistingTags = $photo->getAllExistingTags();
 
             //categories
             $this->layout->content->categories = $photo->getCategoriesData($photoId);

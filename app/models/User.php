@@ -3,6 +3,9 @@
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
+/**
+ * Class User
+ */
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
     /**
@@ -105,6 +108,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     /**
+     * Returns user id
+     *
      * @param $userId
      * @return mixed
      */
@@ -117,6 +122,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     /**
+     * Gets user
+     *
      * @param $username
      * @return mixed
      */

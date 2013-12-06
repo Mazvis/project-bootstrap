@@ -1,7 +1,28 @@
 <?php
 
+/**
+ * Class Album
+ */
 class Album{
 
+/*
+ * UPLOADING/EDITING
+ */
+
+    /**
+     * Uploads photo/photos to album
+     *
+     * @param $currentAlbumId
+     * @param $currentUserID
+     * @param $photoName
+     * @param $shortDescription
+     * @param $placeTaken
+     * @param $selectedCategories
+     * @param $writtenTags
+     * @param $photoFile
+     * @param $titlePhoto
+     * @return mixed
+     */
     public function uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedCategories, $writtenTags, $photoFile, $titlePhoto){
 
         // upload photo to server
@@ -38,16 +59,6 @@ class Album{
                                 )
                             );
 
-
-                            //tags editing
-                            //$writtenTags = str_replace(" ", "", $writtenTags);
-                            //$explodedTags = preg_split("/[\s,]*\\\"([^\\\"]+)\\\"[\s,]*|" . "[\s,]*'([^']+)'[\s,]*|" . "[\s,]+/", $writtenTags, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-                            //$explodedTags = preg_split("/\s,\./", $writtenTags, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-                            //$explodedTags = preg_split('/\W*\s+/u', $explodedTags, NULL, PREG_SPLIT_NO_EMPTY);
-                            //$explodedTags[] = explode(',', $writtenTags);
-                            //$string = "This is a sentence! It has *lots* of #$@king, 54j, rodis,kableliu 7|59hg random non-word characters. Wouldn't you like to strip them?";
-                            //print_r($explodedTags);
-
                             $explodedTags = preg_replace("/[^\w\ _]+/", '', $writtenTags); // strip all punctuation characters, news lines, etc.
                             $explodedTags = preg_split("/\s+/", $explodedTags); // split by left over spaces
                             $tagLine = "";
@@ -76,14 +87,7 @@ class Album{
                                         $destinationPath."/".$insertedPhotoId."_thumb.".$extension,
                                         $insertedPhotoId));
                             }
-                            //add selected tags to photo/photos
-                            /*for($i = 0; $i < sizeOf($selectedTags); $i++)
-                                DB::table('photo_tags')->insert(
-                                    array(
-                                        'photo_id' => $insertedPhotoId,
-                                        'tag_id' => (int)$selectedTags[$i],
-                                    )
-                                );*/
+
                             //add categories
                             for($i = 0; $i < sizeOf($selectedCategories); $i++){
                                 $catId = DB::select('select * from categories where category_name = ?', array($selectedCategories[$i]));
@@ -170,6 +174,17 @@ class Album{
         return $insertedPhotoId;
     }
 
+    /**
+     * Gets values from inputs ant edits album data
+     *
+     * @param $currentAlbumId
+     * @param $currentUserID
+     * @param $albumName
+     * @param $shortDescription
+     * @param $fullDescription
+     * @param $placeTaken
+     * @param $titlePhotoFile
+     */
     public function editAlbum($currentAlbumId, $currentUserID, $albumName, $shortDescription, $fullDescription, $placeTaken, $titlePhotoFile){
 
         DB::table('albums')
@@ -254,11 +269,26 @@ class Album{
 
     }
 
+/*
+ * GETS
+ */
 
+    /**
+     * Gets all single album photos
+     *
+     * @param $albumId
+     * @return mixed
+     */
     public function getAlbumPhotos($albumId){
         return DB::select('select * from photos where album_id = ?', array($albumId));
     }
 
+    /**
+     * Gets single album data
+     *
+     * @param $albumId
+     * @return mixed
+     */
     public function getAlbumDataByAlbumId($albumId){
         $albums = DB::select('SELECT albums . * , users.username, COUNT( photos.photo_id ) AS album_photos_count
         FROM albums
@@ -270,13 +300,18 @@ class Album{
         return $albums;
     }
 
+/*
+ * DELETES
+ */
+
+    /**/
+
     /*
      * Deletes photo from album page by photo_id
+     *
      * @param int $photoId
      * @return string if delete is success
      */
-
-    //***//
     public function deletePhoto($photoId){
         $photos = DB::select('select * from photos where photo_id = ?', array($photoId));
         if($photos){
@@ -290,11 +325,10 @@ class Album{
 
     /*
      * Deletes all album data
+     *
      * @param int $albumId
      * @return string if delete is success
      */
-
-    //***//+
     public function deleteAlbum($albumId){
 
         //deletes all album likes
@@ -331,9 +365,6 @@ class Album{
                 //delete all added album photos tags
                 DB::table('photo_tags')->where('photo_tag_id', $photoTagsId->photo_tag_id)->delete();
 
-            //deletes all title photo data
-            //DB::delete('delete from albums_title_photos where album_id = ?', array($albumId));
-
             //deletes all album photos data from database
             DB::table('photos')->where('album_id', $albumId)->delete();
         }
@@ -343,8 +374,15 @@ class Album{
         return 'Deleted';
     }
 
-    /*
-     * Likes
+/*
+ * LIKES
+ */
+
+    /**
+     * Gets album likes
+     *
+     * @param $albumId
+     * @return mixed
      */
     public function getAlbumLikes($albumId){
         return DB::select('SELECT likes.*, users.username
@@ -353,6 +391,13 @@ class Album{
         WHERE album_id = ?', array($albumId));
     }
 
+    /**
+     * Checks if user is already liked current album
+     *
+     * @param $albumId
+     * @param $currentUserID
+     * @return int
+     */
     public function isLikeAlreadyExists($albumId, $currentUserID){
         $likes = DB::select('select * from likes where album_id = ? and user_id = ?', array($albumId, $currentUserID));
         if($likes)
@@ -360,6 +405,13 @@ class Album{
         return 0;
     }
 
+    /**
+     * Makes like in album
+     *
+     * @param $albumId
+     * @param $currentUserID
+     * @return mixed
+     */
     public function makeLike($albumId, $currentUserID){
         $isExist = $this->isLikeAlreadyExists($albumId, $currentUserID);
         if($isExist == 0 && $currentUserID != null){
@@ -376,8 +428,15 @@ class Album{
         return $currentUserID;
     }
 
-    /*
-     * Comments
+/*
+ * COMMENTS
+ */
+
+    /**
+     * Gets all album comments
+     *
+     * @param $albumId
+     * @return mixed
      */
     public function getAlbumComments($albumId){
         return DB::select('SELECT comments.*, users.username
@@ -386,6 +445,15 @@ class Album{
         WHERE album_id = ?', array($albumId));
     }
 
+    /**
+     * Writes comment
+     *
+     * @param $comment
+     * @param $currentAlbumId
+     * @param $currentUserID
+     * @param $posterIp
+     * @return mixed
+     */
     public function writeComment($comment, $currentAlbumId, $currentUserID, $posterIp){
         //if album exists
         if(DB::table('albums')->where('album_id',$currentAlbumId)->get()){
@@ -401,20 +469,41 @@ class Album{
         }
     }
 
+    /**
+     * Deletes selected comment
+     *
+     * @param $commentId
+     * @return string
+     */
     public function deleteComment($commentId){
         if(DB::delete('delete from comments where comment_id = ?', array($commentId)))
             return "Deleted";
     }
 
 
-    /*
-     * Views
+/*
+ * VIEWS
+ */
+
+    /**
+     * Count album views
+     *
+     * @param $albumId
      */
     public function countViews($albumId){
         DB::update('update albums set views = views+1 where album_id = ?', array($albumId));
     }
 
-    //***//
+/*
+ * USER
+ */
+
+    /**
+     * Gets all chosen user albums
+     *
+     * @param $userId
+     * @return mixed
+     */
     public function getAllUserAlbums($userId){
         $albums = DB::select('
         select albums.*
@@ -424,6 +513,13 @@ class Album{
         return $albums;
     }
 
+    /**
+     * Checks if user is album creator
+     *
+     * @param $currentUserId
+     * @param $albumId
+     * @return int
+     */
     public function isUserAlbumCreator($currentUserId, $albumId){
         $ifUser = DB::select('
         select users.id
@@ -438,6 +534,15 @@ class Album{
         return 0;
     }
 
+/*
+* SIDEBAR CONTENT
+*/
+
+    /**
+     * Gets five recent created albums
+     *
+     * @return mixed
+     */
     public function recentAlbums(){
         return DB::select('select * from albums order by albums.album_created_at DESC limit 5');
     }
