@@ -19,16 +19,16 @@ class PhotoController extends BaseController {
         if(Auth::check()){
             $photo = new Photo();
             $currentUserID = Auth::user()->id;
-            $currentPhotoId = Input::get('photoId');
+            $currentPhotoId = strip_tags(Input::get('photoId'));
             if($photo->isUserPhotoCreator($currentUserID, $currentPhotoId) || Auth::user()->role_id == 1){
 
-                $currentAlbumId = Input::get('albumId');
-                $selectedCategories = Input::get('categories');
-                $editedTags = Input::get('photoTags');
+                $currentAlbumId = strip_tags(Input::get('albumId'));
+                $selectedCategories = strip_tags(Input::get('categories'));
+                $editedTags = strip_tags(Input::get('photoTags'));
 
-                $photoName = Input::get('photoName');
-                $shortDescription = Input::get('shDescription');
-                $placeTaken = Input::get('placeTaken');
+                $photoName = strip_tags(Input::get('photoName'));
+                $shortDescription = strip_tags(Input::get('shDescription'));
+                $placeTaken = strip_tags(Input::get('placeTaken'));
                 $albumTitlePhoto = Input::get('albumTitlePhoto');
 
                 $photo = new Photo;
@@ -78,7 +78,7 @@ class PhotoController extends BaseController {
         if(Auth::check()){
             $photo = new Photo();
             $currentUserID = Auth::user()->id;
-            $currentPhotoId = Input::get('photoId');
+            $currentPhotoId = strip_tags(Input::get('photoId'));
             if($photo->isUserPhotoCreator($currentUserID, $currentPhotoId) || Auth::user()->role_id == 1){
                 return $photo->deletePhoto($currentPhotoId);
                 //return Redirect::to('albums/'.$currentAlbumId);
@@ -135,7 +135,7 @@ class PhotoController extends BaseController {
      */
     public function makeALike(){
         $photo = new Photo();
-        $currentPhotoId = Input::get('photoId');
+        $currentPhotoId = strip_tags(Input::get('photoId'));
         if(Auth::check()){
             $currentUserID = Auth::user()->id;
             return $photo->makeLike($currentPhotoId, $currentUserID);
@@ -169,8 +169,8 @@ class PhotoController extends BaseController {
         if(Auth::check())
             $currentUserID = Auth::user()->id;
 
-        $currentPhotoId = Input::get('photoId');
-        $comment = Input::get('comment');
+        $currentPhotoId = strip_tags(Input::get('photoId'));
+        $comment = strip_tags(Input::get('comment'));
         $posterIp = Request::getClientIp();
 
         return $photo->writeComment($comment, $currentPhotoId, $currentUserID, $posterIp);
@@ -220,7 +220,6 @@ class PhotoController extends BaseController {
      */
     public function searchTag(){
         $tagName = Input::get('photo-search-by-tag');
-        $photo = new Photo;
         return Redirect::to('search/'.$tagName);
     }
 
@@ -266,10 +265,15 @@ class PhotoController extends BaseController {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function createCategory(){
-        $tag = Input::get('catName');
-        $tagDescription = Input::get('catDescription');
-        $photo = new Photo;
-        return $photo->createCategory($tag, $tagDescription);
+        $photo = new Photo();
+        if(Auth::check())
+            //if is admin
+            if(Auth::user()->role_id == 1){
+                $tag = strip_tags(Input::get('catName'));
+                $tagDescription = strip_tags(Input::get('catDescription'));
+                $photo = new Photo;
+                return $photo->createCategory($tag, $tagDescription);
+            }
     }
 
     /**
@@ -278,10 +282,14 @@ class PhotoController extends BaseController {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteCategory(){
-        $category = Input::get('category');
-        $selectedCategories = Input::get('categories');
-        $photo = new Photo;
-        return $photo->deleteCategory($category, $selectedCategories);
+        if(Auth::check())
+            //if is admin
+            if(Auth::user()->role_id == 1){
+                $category = strip_tags(Input::get('category'));
+                $selectedCategories = Input::get('categories');
+                $photo = new Photo;
+                return $photo->deleteCategory($category, $selectedCategories);
+            }
     }
 
 /*

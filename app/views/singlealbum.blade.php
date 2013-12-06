@@ -218,7 +218,7 @@
             <p>{{ Form::label('tagsToAdd', 'write tags to add to photo') }}</p>
             <p>{{ Form::text('tagsToAdd', '', array('class' => 'form-control')) }}</p>
 
-            <p>{{ Form::label('photos[]', 'upload photos') }}</p>
+            <p>{{ Form::label('photos', 'upload photos') }}</p>
             <p>{{ Form::file('photos[]', array('multiple'=>true, 'id' => 'photos_id', 'class' => 'form-control')) }}</p>
 
             <div class="row alert-process">

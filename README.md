@@ -1,4 +1,4 @@
-Funkcionalumo aprašymas
+Funkcionalumo a
 
 Vartotojų galimybės
     užsiregistravę vartotojai gali prisijungt, neužsiregistravę - užsiregistruot

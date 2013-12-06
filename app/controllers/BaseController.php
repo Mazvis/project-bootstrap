@@ -37,7 +37,9 @@ class BaseController extends Controller {
             $this->layout->randomPhoto = $randPhoto;
 
             //gets most viewed photo in gallery
+            $mostViewedPhoto = null;
             $mostViewedPhoto = $photoC->getMostViewedPhoto();
+
             if($mostViewedPhoto)
                 $mostViewedPhoto = $mostViewedPhoto[0];
             $this->layout->mostViewedPhoto = $mostViewedPhoto;

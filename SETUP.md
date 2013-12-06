@@ -32,3 +32,8 @@ Nueiname į app/config/database.php ir pakeičiam į savo duomenis:
 	'collation' => 'utf8_unicode_ci',
 	'prefix'    => '',
 ),
+
+Importuojame i duombaze sql scriptą: /gallery DB.sql
+administratoriaus prisijungimas:
+username: admin
+password: 123

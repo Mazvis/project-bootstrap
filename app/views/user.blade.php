@@ -59,12 +59,12 @@
         </div>
         <div class="caption photo-link" data-id="{{ $userAlbums[$i]->album_id }}">
             <p>{{ $userAlbums[$i]->album_short_description }} </p>
-
+            @if(Auth::check() && Auth::user()->role_id == 1)
             <p id="delete-album-data" data-albumid="{{ $userAlbums[$i]->album_id }}">
                 {{ HTML::link(URL::to('albums/'.$userAlbums[$i]->album_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
                 {{ Form::submit('Delete album', array('id' => 'delete-album-in-user-page', 'class' => 'btn btn-danger')) }}
             </p>
-
+            @endif
         </div>
     </div>
     @endfor

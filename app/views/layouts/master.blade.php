@@ -64,18 +64,16 @@
                         <li class="@if(Request::is('/'))active@endif">{{ HTML::link('/', 'Home') }}</li>
                         <li class="@if(Request::is('albums')){{'active'}}@else{{' '}}@endif">{{ HTML::link('/albums', 'Albums') }}</li>
                         @if(Auth::check())
-                        <li class="dropdown @if(Request::is('panel')){{'active'}}@else{{' '}}@endif">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">user panel<b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{{ URL::to('profile') }}">Profile</a></li>
-                                <li class="admin-panel-li"><a href="{{ URL::to('panel') }}">Admin panel</a></li>
-                            </ul>
-                        </li>
+                            <li class="dropdown @if(Request::is('panel')){{'active'}}@else{{' '}}@endif">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">user panel<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ URL::to('profile') }}">Profile</a></li>
+                                    @if(Auth::user()->role_id == 1)<li class="admin-panel-li"><a href="{{ URL::to('panel') }}">Admin panel</a></li>@endif
+                                </ul>
+                            </li>
                         @else
                         <li class="@if(Request::is('registration')){{'active'}}@else{{' '}}@endif">{{ HTML::link('registration', 'Register') }}</li>
                         @endif
-                        <li>{{ HTML::link('/albums/1', 'album1') }}</li>
-                        <li>{{ HTML::link('/albums/1/photo/1', 'photo1') }}</li>
                     </ul>
 
                     @if(Auth::check())
@@ -135,7 +133,7 @@
                 </div>
 
                 <hr>
-
+                @if($mostViewedPhoto)
                 <div class="photo-search sidebar-elements">
                     <h5>Most viewed photo</h5>
                     <div class="thumbnail">
@@ -148,9 +146,11 @@
                         </a>
                     </div>
                 </div>
+                @endif
 
                 <hr>
 
+                @if($randomPhoto)
                 <div class="photo-search sidebar-elements">
                     <h5>Random photo</h5>
                     <div class="thumbnail">
@@ -163,6 +163,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
 
                 <div class="photo-search sidebar-elements">
                     <h5>All categories</h5>

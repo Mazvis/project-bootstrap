@@ -40,6 +40,7 @@
                 {{ HTML::image('assets/img/NoAlbumArt.jpg', $allAlbums[$i]->album_short_description, array('width' => '200', 'height' => '200')) }}
                 @endif
             </a>
+            @if(Auth::check() && Auth::user()->role_id == 1)
             <div class="caption photo-link" data-id="{{ $allAlbums[$i]->album_id }}">
                 <p>{{ $allAlbums[$i]->album_short_description }} </p>
                 <p id="delete-album-data" data-albumid="{{ $allAlbums[$i]->album_id }}">
@@ -47,6 +48,7 @@
                     {{ Form::submit('Delete album', array('id' => 'delete-album-in-albums', 'class' => 'btn btn-danger')) }}
                 </p>
             </div>
+            @endif
         </div>
     </div>
     @endfor

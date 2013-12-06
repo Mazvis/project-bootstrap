@@ -15,10 +15,10 @@ class AlbumsController extends BaseController {
         if(Auth::check()){
             if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2){
                 $currentUserId = Auth::user()->id;
-                $albumName = Input::get('name');
-                $shortDescription = Input::get('shDescription');
-                $fullDescription = Input::get('description');
-                $placeTaken = Input::get('place');
+                $albumName = strip_tags(Input::get('name'));
+                $shortDescription = strip_tags(Input::get('shDescription'));
+                $fullDescription = strip_tags(Input::get('description'));
+                $placeTaken = strip_tags(Input::get('place'));
 
                 $albums = new Albums;
                 return $albums->createAlbum($currentUserId, $albumName, $shortDescription, $fullDescription, $placeTaken);

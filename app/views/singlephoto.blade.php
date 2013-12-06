@@ -16,12 +16,14 @@
         <p><strong>Photo tags:</strong>  @for ($i = 0; $i < sizeOf($photoTagNames); $i++) {{ HTML::link('tag/'.$photoTagNames[$i], $photoTagNames[$i]) }}@if($i < sizeOf($photoTagNames)-2), @endif @endfor</p>
         <p><strong>Views:</strong>  {{ $photoData->views }}</p>
 
+        @if(Auth::check())
         <div data-photoid="{{ $photoData->photo_id }}">
             <button id="delete-single-photo" class="btn btn-danger">
                 <i class="glyphicon glyphicon-trash"></i>
                 <span class="text">Delete photo</span>
             </button>
         </div>
+        @endif
     </div>
 
     <div class="clear"></div>
@@ -78,7 +80,7 @@
 <div class="tabs">
     <ul id="myTab" class="nav nav-tabs">
         <li class="active"><a href="#comment-in-album-tab" data-toggle="tab">Comment</a></li>
-        <li class=""><a href="#edit-album-tab" data-toggle="tab">Edit</a></li>
+        @if(Auth::check())<li class=""><a href="#edit-album-tab" data-toggle="tab">Edit</a></li>@endif
     </ul>
     <div id="myTabContent" class="tab-content">
 
@@ -124,7 +126,7 @@
             </div>
 
         </div>
-
+        @if(Auth::check())
         <div class="tab-pane fade" id="edit-album-tab">
             {{ Form::open(array('files'=> true, 'method' => 'post', 'id' => 'edit-photo-data-form', 'class' => 'form-hidden')) }}
 
@@ -154,6 +156,7 @@
             {{ Form::token() }}
             {{ Form::close() }}
         </div>
+        @endif
     </div>
 </div>
 

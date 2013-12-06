@@ -21,9 +21,9 @@ class AlbumController extends BaseController {
             $album = new Album();
             $currentUserID = Auth::user()->id;
             if($album->isUserAlbumCreator($currentUserID, $currentAlbumId) || Auth::user()->role_id == 1){
-                $photoName = Input::get('photoName');
-                $shortDescription = Input::get('shDescription');
-                $placeTaken = Input::get('placeTaken');
+                $photoName = strip_tags(Input::get('photoName'));
+                $shortDescription = strip_tags(Input::get('shDescription'));
+                $placeTaken = strip_tags(Input::get('placeTaken'));
                 $selectedCategories = Input::get('categories');
                 $writtenTags = Input::get('tagsToAdd');
 
@@ -54,10 +54,10 @@ class AlbumController extends BaseController {
             $currentUserID = Auth::user()->id;
             if($album->isUserAlbumCreator($currentUserID, $currentAlbumId) || Auth::user()->role_id == 1){
 
-                $albumName = Input::get('albumName');
-                $shortDescription = Input::get('shDescription');
-                $fullDescription = Input::get('fullDescription');
-                $placeTaken = Input::get('placeTaken');
+                $albumName = strip_tags(Input::get('albumName'));
+                $shortDescription = strip_tags(Input::get('shDescription'));
+                $fullDescription = strip_tags(Input::get('fullDescription'));
+                $placeTaken = strip_tags(Input::get('placeTaken'));
 
                 $titlePhotoFile = null;
                 if (Input::hasFile('albumTitlePhoto'))
@@ -110,7 +110,7 @@ class AlbumController extends BaseController {
 
         if(Auth::check()){
             $currentUserID = Auth::user()->id;
-            $photoId = Input::get('photoId');
+            $photoId = strip_tags(Input::get('photoId'));
             $photo = new Photo();
             if($photo->isUserPhotoCreator($currentUserID, $photoId) || Auth::user()->role_id == 1){
                $album = new Album();
@@ -129,7 +129,7 @@ class AlbumController extends BaseController {
 
         if(Auth::check()){
             $currentUserID = Auth::user()->id;
-            $albumId = Input::get('albumId');
+            $albumId = strip_tags(Input::get('albumId'));
             $album = new Album();
             if($album->isUserAlbumCreator($currentUserID, $albumId) || Auth::user()->role_id == 1){
 
@@ -220,8 +220,8 @@ class AlbumController extends BaseController {
         if(Auth::check())
             $currentUserID = Auth::user()->id;
 
-        $currentAlbumId = Input::get('albumId');
-        $comment = Input::get('comment');
+        $currentAlbumId = strip_tags(Input::get('albumId'));
+        $comment = strip_tags(Input::get('comment'));
         $posterIp = Request::getClientIp();
 
         return $album->writeComment($comment, $currentAlbumId, $currentUserID, $posterIp);
@@ -233,7 +233,7 @@ class AlbumController extends BaseController {
      * @return string
      */
     public function deleteComment(){
-        $commentId = Input::get('commentIdToDelete');
+        $commentId = strip_tags(Input::get('commentIdToDelete'));
         $album = new Album();
         return $album->deleteComment($commentId);
     }

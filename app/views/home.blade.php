@@ -14,13 +14,15 @@
                     {{ HTML::image('assets/img/no-image-thumb.jpg', $photo_data_array2[$i]->photo_short_description, array('width' => '200', 'height' => '200')) }}
                     @endif
                 </a>
-                <div class="caption photo-link" data-id="{{ $photo_data_array2[$i]->photo_id }}">
-                    <p>Album: {{ HTML::link('albums/'.$photo_data_array2[$i]->album_id.'/photo/'.$photo_data_array2[$i]->photo_id, $photo_data_array2[$i]->album_name) }} </p>
-                    <p>
-                        {{ HTML::link(URL::to('albums/'.$photo_data_array2[$i]->album_id.'/photo/'.$photo_data_array2[$i]->photo_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
-                        {{ Form::submit('Delete', array('id' => 'delete-photo-in-home', 'class' => 'btn btn-danger')) }}
-                    </p>
-                </div>
+                @if(Auth::check() && Auth::user()->role_id == 1)
+                    <div class="caption photo-link" data-id="{{ $photo_data_array2[$i]->photo_id }}">
+                        <p>Album: {{ HTML::link('albums/'.$photo_data_array2[$i]->album_id.'/photo/'.$photo_data_array2[$i]->photo_id, $photo_data_array2[$i]->album_name) }} </p>
+                        <p>
+                            {{ HTML::link(URL::to('albums/'.$photo_data_array2[$i]->album_id.'/photo/'.$photo_data_array2[$i]->photo_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
+                            {{ Form::submit('Delete', array('id' => 'delete-photo-in-home', 'class' => 'btn btn-danger')) }}
+                        </p>
+                    </div>
+                @endif
             </div>
         </div>
         @endfor
