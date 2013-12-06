@@ -5,7 +5,7 @@
             <div class="col-sm-3">
                 <div class="profile-img">
                     <div class="profile-img-wrapper">
-                        <img src="{{ URL::to('assets/img/user-blank.jpg') }}{{--URL::asset('uploads/'.$user->id.'.jpg')--}} " alt="username">
+                        <img src="{{ URL::to('assets/img/user-blank.jpg') }}" alt="username">
                     </div>
                 </div>
             </div>
@@ -47,9 +47,8 @@
 <div class="row">
     @for ($i = 0; $i < sizeOf($userAlbums); $i++)
     <div class="col-sm-6 col-md-4">
+        <h3>{{ $userAlbums[$i]->album_name }}</h3>
         <div class="thumbnail">
-            <h3>{{ $userAlbums[$i]->album_name }}</h3>
-
             <a href="{{ URL::to('albums/'.$userAlbums[$i]->album_id) }}">
                 @if($userAlbums[$i]->album_title_photo_thumb_url && is_file($userAlbums[$i]->album_title_photo_thumb_url))
                 {{ HTML::image($userAlbums[$i]->album_title_photo_thumb_url, $userAlbums[$i]->album_short_description) }}
@@ -57,16 +56,15 @@
                 {{ HTML::image('assets/img/NoAlbumArt.jpg', $userAlbums[$i]->album_short_description, array('width' => '200', 'height' => '200')) }}
                 @endif
             </a>
+        </div>
+        <div class="caption photo-link" data-id="{{ $userAlbums[$i]->album_id }}">
+            <p>{{ $userAlbums[$i]->album_short_description }} </p>
 
-            <div class="caption photo-link" data-id="{{ $userAlbums[$i]->album_id }}">
-                <p>{{ $userAlbums[$i]->album_short_description }} </p>
+            <p id="delete-album-data" data-albumid="{{ $userAlbums[$i]->album_id }}">
+                {{ HTML::link(URL::to('albums/'.$userAlbums[$i]->album_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
+                {{ Form::submit('Delete album', array('id' => 'delete-album-in-user-page', 'class' => 'btn btn-danger')) }}
+            </p>
 
-                <!--<p id="delete-album-data" data-albumid="{{ $userAlbums[$i]->album_id }}">
-                    {{ HTML::link(URL::to('albums/'.$userAlbums[$i]->album_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
-                    {{ Form::submit('Delete album', array('id' => 'delete-album-in-user-page', 'class' => 'btn btn-danger')) }}
-                </p>-->
-
-            </div>
         </div>
     </div>
     @endfor

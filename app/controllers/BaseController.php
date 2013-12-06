@@ -14,11 +14,31 @@ class BaseController extends Controller {
      */
     protected function setupLayout() {
         $photo = new Photo();
+        $photoC = new PhotoController();
+        $albumC = new AlbumController();
         if (!is_null($this->layout)) {
             $this->layout = View::make($this->layout);
             $this->layout->content = '';
             $this->layout->bodyclass = '';
-            $this->layout->existingTags = $photo->getExistingTags();
+            $this->layout->title = 'Photo Galery';
+
+            //gets all existing categories
+            $this->layout->existingCategories = $photoC->getAllExistingCategories();
+
+            //gets 5 recent created albums in gallery
+            $this->layout->recentAlbums = $albumC->recentAlbums();
+
+            //gets random photo from gallery
+            $randPhoto = $photo->getRandomPhoto();
+            if($randPhoto)
+                $randPhoto = $randPhoto[0];
+            $this->layout->randomPhoto = $randPhoto;
+
+            //gets most viewed photo in gallery
+            $mostViewedPhoto = $photo->getMostViewedPhoto();
+            if($mostViewedPhoto)
+                $mostViewedPhoto = $mostViewedPhoto[0];
+            $this->layout->mostViewedPhoto = $mostViewedPhoto;
         }
     }
 

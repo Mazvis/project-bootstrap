@@ -14,7 +14,8 @@ class AlbumController extends BaseController {
                 $photoName = Input::get('photoName');
                 $shortDescription = Input::get('shDescription');
                 $placeTaken = Input::get('placeTaken');
-                $selectedTags = Input::get('tags');
+                $selectedCategories = Input::get('categories');
+                $writtenTags = Input::get('tagsToAdd');
 
                 $photoFiles = null;
                 if (Input::hasFile('photos'))
@@ -22,7 +23,7 @@ class AlbumController extends BaseController {
 
                 $titlePhoto = Input::get('titlePhoto');
 
-                return $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFiles, $titlePhoto);
+                return $album->uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedCategories, $writtenTags, $photoFiles, $titlePhoto);
                 //return $currentAlbumId.$currentUserID.$photoName.$shortDescription.$placeTaken.$photoFile.$titlePhoto;
                 //return Redirect::to('albums/'.$currentAlbumId);
             }
@@ -150,6 +151,12 @@ class AlbumController extends BaseController {
         return $album->writeComment($comment, $currentAlbumId, $currentUserID, $posterIp);
     }
 
+    public function deleteComment(){
+        $commentId = Input::get('commentIdToDelete');
+        $album = new Album();
+        return $album->deleteComment($commentId);
+    }
+
     /*
      * Views
      */
@@ -183,6 +190,11 @@ class AlbumController extends BaseController {
                 return 1;
         }
         return 0;
+    }
+
+    public function recentAlbums(){
+        $album = new Album();
+        return $album->recentAlbums();
     }
 
 }

@@ -13,13 +13,7 @@
 
 App::before(function($request)
 {
-    /* if logged in user goes to sign in or registration page */
-    /*$not_protected = array('/', 'validate-registration', 'validate-login', 'registration');
-    if (Auth::check() && in_array(Request::path(), $not_protected))
-        return Redirect::intended('/');*/
-    /* if not logged in user goes to protected pages*/
-    /*if (!Auth::check() && !in_array(Request::path(), $not_protected))
-        return Redirect::to('login');*/
+    //
 });
 
 

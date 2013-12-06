@@ -1,7 +1,7 @@
 <h1>Albums</h1>
 
 @if(Auth::check())
-<div class="image-navigation" style="border: 1px solid red">
+<div class="image-navigation">
     <b>Create new:</b>
     {{ Form::open(array('method' => 'post', 'id' => 'create-album-form')) }}
 
@@ -42,15 +42,15 @@
             </a>
             <div class="caption photo-link" data-id="{{ $allAlbums[$i]->album_id }}">
                 <p>{{ $allAlbums[$i]->album_short_description }} </p>
-                <!--<p id="delete-album-data" data-albumid="{{ $allAlbums[$i]->album_id }}">
-                    {{--HTML::link(URL::to('albums/'.$allAlbums[$i]->album_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')--}}
-                    {{--Form::submit('Delete album', array('id' => 'delete-album-in-albums', 'class' => 'btn btn-danger')--}}
-                </p>-->
+                <p id="delete-album-data" data-albumid="{{ $allAlbums[$i]->album_id }}">
+                    {{ HTML::link('albums/'.$allAlbums[$i]->album_id, 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}
+                    {{ Form::submit('Delete album', array('id' => 'delete-album-in-albums', 'class' => 'btn btn-danger')) }}
+                </p>
             </div>
         </div>
     </div>
     @endfor
 </div>
 
-    <div class="clear"></div>
+<div class="clear"></div>
 </div>

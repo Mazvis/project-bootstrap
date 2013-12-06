@@ -1,4 +1,4 @@
-<h1>{{ $albumData->album_name }} {{--Request::segment(2)--}}</h1>
+<h1>{{ $albumData->album_name }}</h1>
 
 <div class="image-navigation" style="padding-left: 0; padding-top: 0;">
 
@@ -20,20 +20,18 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
-
-    <div style="float:left; width:30%">
-        <p>Album name: {{ $albumData->album_name }}</p>
-        <p>Place: {{ $albumData->album_place }}</p>
-        <p>Created at: {{ $albumData->album_created_at }}</p>
-        <!--<p>Title photo: {{ $albumData->album_title_photo_id }}</p>-->
-        <p>Album fool description: {{ $albumData->album_full_description }}</p>
-        <p>Creator: {{ HTML::link('user/'.$albumData->username, $albumData->username) }}</p>
-        <p>Views: {{ $albumData->views }}</p>
-        <p>Album photos count: {{ $albumData->album_photos_count }}</p>
+    <div class="col-sm-12">
+        <p><strong>Album name:</strong> {{ $albumData->album_name }}</p>
+        <p><strong>Place:</strong> {{ $albumData->album_place }}</p>
+        <p><strong>Created at:</strong> {{ $albumData->album_created_at }}</p>
+        <p><strong>Album fool description:</strong> Album full description: {{ $albumData->album_full_description }}</p>
+        <p><strong>Creator:</strong> {{ HTML::link('user/'.$albumData->username, $albumData->username) }}</p>
+        <p><strong>Views:</strong> {{ $albumData->views }}</p>
+        <p><strong>Album has photos:</strong> {{ $albumData->album_photos_count }}</p>
 
         @if($isUserHavingPrivilegies)
         {{ Form::submit('Delete album', array('class' => 'btn btn-danger', 'data-toggle' => 'modal', 'data-target' => '#deleteAlbumModal')) }}
@@ -60,8 +58,7 @@
 
     </div>
 
-
-    <div style="clear:both"></div>
+    <div class="clear"></div>
     <hr>
 </div>
 
@@ -138,7 +135,7 @@
                         <div class="panel-heading">
                             <h4 class="panel-title">
                                 @if($isUserHavingPrivilegies)
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <button id="album-comment-delete-button" type="button" class="close" data-dismiss="modal" data-commentid="{{ $comments[$i]->comment_id }}" aria-hidden="true">×</button>
                                 @endif
                                 <a data-toggle="collapse" data-parent="#accordion" href="#comment{{ $comments[$i]->comment_id }}">
                                     <p>
@@ -180,19 +177,19 @@
             {{ Form::hidden('albumId', $albumId)}}
 
             <p>{{ Form::label('albumName', 'Album name') }}</p>
-            <p>{{ Form::text('albumName', $albumData->album_name) }}</p>
+            <p>{{ Form::text('albumName', $albumData->album_name, array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('shDescription', 'Album short description') }}</p>
-            <p>{{ Form::text('shDescription', $albumData->album_short_description) }}</p>
+            <p>{{ Form::text('shDescription', $albumData->album_short_description, array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('fullDescription', 'Album full description') }}</p>
-            <p>{{ Form::text('fullDescription', $albumData->album_full_description) }}</p>
+            <p>{{ Form::text('fullDescription', $albumData->album_full_description, array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
-            <p>{{ Form::text('placeTaken', $albumData->album_place) }}</p>
+            <p>{{ Form::text('placeTaken', $albumData->album_place, array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('albumTitlePhoto', 'Title photo') }}</p>
-            <p>{{ Form::file('albumTitlePhoto') }}</p>
+            <p>{{ Form::file('albumTitlePhoto', array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::submit('Edit', array('class' => 'btn btn-primary')) }}</p>
 
@@ -207,18 +204,30 @@
             {{ Form::hidden('albumId', $albumId)}}
 
             <p>{{ Form::label('photoName', 'Photo name') }}</p>
-            <p>{{ Form::text('photoName') }}</p>
+            <p>{{ Form::text('photoName', '', array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('shDescription', 'Photo short description') }}</p>
-            <p>{{ Form::text('shDescription') }}</p>
+            <p>{{ Form::text('shDescription', '', array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('placeTaken', 'Fotographed at') }}</p>
-            <p>{{ Form::text('placeTaken') }}</p>
+            <p>{{ Form::text('placeTaken', '', array('class' => 'form-control')) }}</p>
 
-            <p>{{ Form::label('tags', 'add tags') }}</p>
-            <p>{{ Form::select('tags[]', $allExistingTags, null, array('multiple'=>true, 'id' => 'tags')) }}</p>
+            <p>{{ Form::label('category', 'select category') }}</p>
+            <p>{{ Form::select('categories[]', $allExistingCategories, null, array('class' => 'form-control')) }}</p>
 
-            <p>{{ Form::file('photos[]', array('multiple'=>true, 'id' => 'photos_id')) }}</p>
+            <p>{{ Form::label('tagsToAdd', 'write tags to add to photo') }}</p>
+            <p>{{ Form::text('tagsToAdd', '', array('class' => 'form-control')) }}</p>
+
+            <p>{{ Form::label('photos[]', 'upload photos') }}</p>
+            <p>{{ Form::file('photos[]', array('multiple'=>true, 'id' => 'photos_id', 'class' => 'form-control')) }}</p>
+
+            <div class="row alert-process">
+                <div class="col-sm-12">
+                    <div id="output_process" class="alert alert-success">
+
+                    </div>
+                </div>
+            </div>
 
             <p>{{ Form::label('titlePhoto', 'Make album title photo?') }}</p>
             <p>{{ Form::checkbox('titlePhoto', true, array('class' => 'check')) }}</p>
@@ -262,3 +271,4 @@
     </div>
     @endfor
 </div>
+<hr>

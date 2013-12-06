@@ -2,7 +2,7 @@
 
 class Album{
 
-    public function uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $photoFile, $titlePhoto){
+    public function uploadPhoto($currentAlbumId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedCategories, $writtenTags, $photoFile, $titlePhoto){
 
         // upload photo to server
         if ($photoFile != null){
@@ -37,6 +37,28 @@ class Album{
                                     'photo_size' => $fileSize
                                 )
                             );
+
+
+                            //tags editing
+                            //$writtenTags = str_replace(" ", "", $writtenTags);
+                            //$explodedTags = preg_split("/[\s,]*\\\"([^\\\"]+)\\\"[\s,]*|" . "[\s,]*'([^']+)'[\s,]*|" . "[\s,]+/", $writtenTags, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                            //$explodedTags = preg_split("/\s,\./", $writtenTags, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                            //$explodedTags = preg_split('/\W*\s+/u', $explodedTags, NULL, PREG_SPLIT_NO_EMPTY);
+                            //$explodedTags[] = explode(',', $writtenTags);
+                            //$string = "This is a sentence! It has *lots* of #$@king, 54j, rodis,kableliu 7|59hg random non-word characters. Wouldn't you like to strip them?";
+                            //print_r($explodedTags);
+
+                            $explodedTags = preg_replace("/[^\w\ _]+/", '', $writtenTags); // strip all punctuation characters, news lines, etc.
+                            $explodedTags = preg_split("/\s+/", $explodedTags); // split by left over spaces
+                            $tagLine = "";
+                            for($i=0; $i<sizeOf($explodedTags); $i++)
+                                $tagLine = $tagLine.$explodedTags[$i].", ";
+                            $tagLine = substr($tagLine, 0, -2);
+
+                            DB::insert('insert into photo_tags (photo_id, tags) values (?,?)', array($insertedPhotoId, $tagLine));
+
+
+
                             $upload_success = $file->move($destinationPath, $insertedPhotoId.".".$extension);
                             if($upload_success){
                                 //makes photo thumb
@@ -55,14 +77,24 @@ class Album{
                                         $insertedPhotoId));
                             }
                             //add selected tags to photo/photos
-                            for($i = 0; $i < sizeOf($selectedTags); $i++)
+                            /*for($i = 0; $i < sizeOf($selectedTags); $i++)
                                 DB::table('photo_tags')->insert(
                                     array(
                                         'photo_id' => $insertedPhotoId,
                                         'tag_id' => (int)$selectedTags[$i],
                                     )
-                                );
-
+                                );*/
+                            //add categories
+                            for($i = 0; $i < sizeOf($selectedCategories); $i++){
+                                $catId = DB::select('select * from categories where category_name = ?', array($selectedCategories[$i]));
+                                if($catId)
+                                    DB::table('photo_categories')->insert(
+                                        array(
+                                            'photo_id' => $insertedPhotoId,
+                                            'category_id' => $catId[0]->category_id,
+                                        )
+                                    );
+                            }
                             //-----------------Editing album title photo data---------------------//
                             //if 'make uploaded photo to title album photo' property is selected
                             if($titlePhoto){
@@ -369,6 +401,12 @@ class Album{
         }
     }
 
+    public function deleteComment($commentId){
+        if(DB::delete('delete from comments where comment_id = ?', array($commentId)))
+            return "Deleted";
+    }
+
+
     /*
      * Views
      */
@@ -400,4 +438,7 @@ class Album{
         return 0;
     }
 
+    public function recentAlbums(){
+        return DB::select('select * from albums order by albums.album_created_at DESC limit 5');
+    }
 }

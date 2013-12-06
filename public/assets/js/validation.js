@@ -30,7 +30,7 @@
                     }
                 }).done(function( msg ) {
                         if( msg == "OK" )
-                            window.location.replace("/");
+                            window.location.replace("/"); //goes to main page
                         else if( msg == "GOOD" ){
                             restoreFields();
                             $('#registration .alert-danger').hide("slow");

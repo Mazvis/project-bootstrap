@@ -1,11 +1,18 @@
-<h1>Tag({{ $tagName }})</h1>
-
 <div class="row">
+    <div class="col-sm-6 col-md-4">
+        <h1>Category({{ $catName }})</h1>
+        <p>@if($photos) {{ $photos[1]->category_description }} @endif</p>
+        @if(sizeOf($photos)< 1)
+            <span>There is no photos with this category.</span>
+        @endif
+    </div>
+    <div class="clear"></div>
     @for ($i = 0; $i < sizeOf($photos); $i++)
     <div class="col-sm-6 col-md-4">
         <h3>{{ $photos[$i]->photo_name }}</h3>
         <p>Album: {{ HTML::link('albums/'.$photos[$i]->album_id.'/photo/'.$photos[$i]->photo_id, $photos[$i]->album_name) }} </p>
         <div class="thumbnail">
+
             <a href="{{ URL::to('albums/'.$photos[$i]->album_id.'/photo/'.$photos[$i]->photo_id) }}">
                 @if($photos[$i]->photo_thumbnail_destination_url && is_file($photos[$i]->photo_thumbnail_destination_url))
                 {{ HTML::image($photos[$i]->photo_thumbnail_destination_url, $photos[$i]->photo_short_description) }}
@@ -22,9 +29,4 @@
         </div>
     </div>
     @endfor
-    @if(sizeOf($photos)< 1)
-    <div class="col-sm-6 col-md-4">
-        <p>There is no photos with this tag.</p>
-    </div>
-    @endif
 </div>

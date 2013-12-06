@@ -41,6 +41,28 @@ class HomeController extends BaseController {
             return Redirect::to('login');
     }
 
+    /*
+     * Show admin panel.
+     */
+    public function showPanel()
+    {
+        if(Auth::check()){
+            $this->layout->bodyclass = "home-page";
+            $value = Session::get('user.id', Auth::user()->id);
+            $this->layout->content = View::make('panel', array('user' => User::find($value)));
+
+            $album = new AlbumController();
+            $this->layout->content->userAlbums = $album->getAllUserAlbums(Auth::user()->id);
+
+            $photo = new PhotoController();
+            $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+            $cat = $photo->getAllExistingCategories();
+            if($cat)
+                $this->layout->content->allExistingCategories = $cat;
+        }
+        else
+            return Redirect::to('404');
+    }
 
     public function showProfilePost()
     {
@@ -127,6 +149,8 @@ class HomeController extends BaseController {
 
             //tags
             $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+            //categories
+            $this->layout->content->allExistingCategories = $photo->getAllExistingCategories();
 
             //roles
             $this->layout->content->isUserHavingPrivilegies = $album->isUserHavingPrivilegies($albumId);
@@ -157,7 +181,13 @@ class HomeController extends BaseController {
 
             //tags
             $this->layout->content->tags = $photo->getTagsData($photoId);
+            $this->layout->content->photoTags = $photo->getPhotoTagsRow($photoId);
+            $this->layout->content->photoTagNames = $photo->getPhotoTagNames($photoId);
             $this->layout->content->allExistingTags = $photo->getAllExistingTags();
+
+            //categories
+            $this->layout->content->categories = $photo->getCategoriesData($photoId);
+            $this->layout->content->allExistingCategories = $photo->getAllExistingCategories();
 
             //likes
             $this->layout->content->likes = $photo->getPhotoLikes($photoId);
@@ -176,16 +206,43 @@ class HomeController extends BaseController {
     public function showTagPage($tagName) {
         $photo = new PhotoController();
 
-        $tag = $photo->getTagData($tagName);
+        //$tag = $photo->getTagData($tagName);
+        $photos = $photo->getPhotosByTagName($tagName);
+        //var_dump($photos);
         //if this tag exists
-        if($tag){
             $this->layout->content = View::make('tag', array('tagName' => $tagName));
             $this->layout->bodyclass = "home-page";
 
-            $this->layout->content->photos = $photo->getPhotoDataByTagId($tag[0]->tag_id);
-        }
-        else
-            $this->showNotFoundPage();
+            //$this->layout->content->photos = $photo->getPhotoDataByTagId($tag[0]->tag_id);
+            $this->layout->content->photos = $photos;
+    }
+
+    /*
+     * Show category page
+     */
+    public function showCategoryPage($catName) {
+        $photo = new PhotoController();
+
+        $photos = $photo->getPhotosByCatName($catName);
+
+        $this->layout->content = View::make('category', array('catName' => $catName));
+        $this->layout->bodyclass = "home-page";
+
+        $this->layout->content->photos = $photos;
+    }
+
+    /*
+     * Show search page
+     */
+    public function showSearchPage($tagName) {
+        $photo = new PhotoController();
+
+        $photos = $photo->getPhotosByTagName($tagName);
+
+        $this->layout->content = View::make('tag', array('tagName' => $tagName));
+        $this->layout->bodyclass = "home-page";
+
+        $this->layout->content->photos = $photos;
     }
 
     /**

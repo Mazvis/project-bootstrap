@@ -21,8 +21,8 @@ class PhotoController extends BaseController {
             if($photo->isUserPhotoCreator($currentUserID, $currentPhotoId) || Auth::user()->role_id == 1){
 
                 $currentAlbumId = Input::get('albumId');
-                $selectedTags = Input::get('tags');
-
+                $selectedCategories = Input::get('categories');
+                $editedTags = Input::get('photoTags');
 
                 $photoName = Input::get('photoName');
                 $shortDescription = Input::get('shDescription');
@@ -30,7 +30,7 @@ class PhotoController extends BaseController {
                 $albumTitlePhoto = Input::get('albumTitlePhoto');
 
                 $photo = new Photo;
-                return $photo->editPhoto($currentAlbumId, $currentPhotoId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedTags, $albumTitlePhoto);
+                return $photo->editPhoto($currentAlbumId, $currentPhotoId, $currentUserID, $photoName, $shortDescription, $placeTaken, $selectedCategories, $editedTags, $albumTitlePhoto);
             }
         }
     }
@@ -111,10 +111,30 @@ class PhotoController extends BaseController {
         $photo = new Photo;
         return $photo->getAllExistingTags();
     }
+    public function getAllExistingCategories(){
+        $photo = new Photo;
+        return $photo->getAllExistingCategories();
+    }
+
 
     public function getTagsData($photoId){
         $photo = new Photo;
         return $photo->getTagsData($photoId);
+    }
+
+    public function getCategoriesData($photoId){
+        $photo = new Photo;
+        return $photo->getCategoriesData($photoId);
+    }
+
+    public function getPhotoTagsRow($photoId){
+        $photo = new Photo;
+        return $photo->getPhotoTagsRow($photoId);
+    }
+
+    public function getPhotoTagNames($photoId){
+        $photo = new Photo;
+        return $photo->getPhotoTagNames($photoId);
     }
 
     public function getTagId($tagName){
@@ -126,6 +146,23 @@ class PhotoController extends BaseController {
         return $photo->getTagData($tagName);
     }
 
+    public function getPhotosByTagName($tagName){
+        $photo = new Photo;
+        return $photo->getPhotosByTagName($tagName);
+    }
+
+    public function getPhotosByCatName($catName){
+        $photo = new Photo;
+        return $photo->getPhotosByCatName($catName);
+    }
+
+    public function searchTag(){
+        $tagName = Input::get('photo-search-by-tag');
+        $photo = new Photo;
+        return Redirect::to('search/'.$tagName);
+    }
+
+
     public function getPhotoDataByTag($tag_id){
         $photo = new Photo;
         return $photo->getPhotoDataByTag($tag_id);
@@ -136,12 +173,50 @@ class PhotoController extends BaseController {
         return $photo->getPhotoDataByTagId($tag_id);
     }
 
+    //for admin panel
+    public function createTag(){
+        $tag = Input::get('tagName');
+        $photo = new Photo;
+        return $photo->createTag($tag);
+    }
+    public function createCategory(){
+        $tag = Input::get('catName');
+        $tagDescription = Input::get('catDescription');
+        $photo = new Photo;
+        return $photo->createCategory($tag, $tagDescription);
+    }
+
+    public function deleteTag(){
+        $tag = Input::get('tag');
+        $selectedTags = Input::get('tags');
+        $photo = new Photo;
+        return $photo->deleteTag($tag, $selectedTags);
+    }
+    public function deleteCategory(){
+        $category = Input::get('category');
+        $selectedCategories = Input::get('categories');
+        $photo = new Photo;
+        return $photo->deleteCategory($category, $selectedCategories);
+    }
+
+
+
     /*
      * Views
      */
     public function countViews($photoId){
         $photo = new Photo();
         $photo->countViews($photoId);
+    }
+
+    public function getRandomPhoto(){
+        $photo = new Photo();
+        return $photo->getRandomPhoto();
+    }
+
+    public function getMostViewedPhoto(){
+        $photo = new Photo();
+        return $photo->getMostViewedPhoto();
     }
 
 }

@@ -2,6 +2,7 @@ html {
     height: 100%;
 }
 
+/*background*/
 body {
     min-height: 100%;
     background: url("../img/strange_bullseyes/strange_bullseyes/strange_bullseyes.png") repeat;
@@ -38,6 +39,10 @@ body.home-page .container > .row {
     height: 40px;
     text-align: center;
 }
+.sidebar-elements{
+    text-align: center;
+}
+
 .navbar {
     border-radius: 0;
 }
@@ -87,7 +92,7 @@ body.register-page form {
     border: 1px solid #eee;
     border-right: none;
     padding: 15px;
-    overflow: hidden; /*auto*/
+    overflow: auto;  /*hidden;*/ /*auto*/
 }
 
 .main-content {
@@ -170,7 +175,7 @@ body.register-page form {
 .info-value {
 }
 
-.profile-view .contact-actions {
+.profile-view{
     background: #eee;
     text-align: center;
     border-radius: 2em;
@@ -178,11 +183,11 @@ body.register-page form {
     margin: 10px auto;
 }
 
-.profile-view .contact-actions .action {
+.profile-view{
     border-radius: 2em;
 }
 
-.profile-view .contact-actions .action .text {
+.profile-view{
     padding: 0 5px;
 }
 
@@ -223,153 +228,6 @@ body.register-page form {
 .main-sidebar .tab-content {
     border: 1px solid #ddd;
     border-top: none;
-}
-
-.chat-history .chat-time {
-    border-bottom: 1px solid #aaa;
-    margin: 0 5px;
-    padding: 5px 5px 0;
-    display: block;
-}
-
-.contacts-list {
-    margin: 0;
-    padding: 0;
-}
-
-.contacts-list > li {
-    overflow: hidden;
-    list-style: none none;
-    position: relative;
-}
-
-.contacts-list > li > a {
-    height: 40px;
-    color: #000;
-    display: block;
-    position: relative;
-}
-
-.contacts-list > li:hover > a,
-.contacts-list > li > a:hover,
-.contacts-list > li.hover > a {
-    text-decoration: none;
-    background-color: #ccc;
-}
-
-.contacts-list > li.active > a {
-    background-color: #0095cc;
-    color: #fff;
-}
-
-.contacts-list > li > a .display-name {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.contacts-list > li > a .new-message-num {
-    border-radius: 100%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    font-weight: 800;
-    line-height: 20px;
-    font-size: 10px;
-    display: block;
-    background: #ff6500;
-    color: #fff;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    margin: -10px 20px -10px 0;
-}
-
-.contacts-list li a .status {
-    border-radius: 100%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    font-weight: 800;
-    line-height: 20px;
-    font-size: 10px;
-    display: block;
-    background: #fff;
-    border: 1px solid #eee;
-    color: #fff;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    margin: -10px 20px -10px 0;
-}
-
-.contacts-list li.online a .status {
-    background-color: #63e342;
-}
-
-.contacts-list li.away a .status {
-    background-color: #e3e200;
-}
-
-.contacts-list > li > a .user-img {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 5px;
-    height: 30px;
-    max-width: 30px;
-}
-
-.contacts-list > li > a .user-img img {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.contacts-list > li .contact-actions {
-    position: absolute;
-    top: 0;
-    padding: 5px;
-    right: -10px;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    max-width: 0;
-    transition: all 0.5s;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.contacts-list li .contact-actions .action {
-    text-align: center;
-    margin: 0 1px;
-    border-radius: 100%;
-    height: 30px;
-    width: 30px;
-    line-height: 30px;
-    outline: none;
-    padding: 6px;
-}
-
-.contacts-list li .contact-actions .action>i {
-    top: 0;
-}
-
-.contacts-list > li.hover .contact-actions,
-.contacts-list > li:hover .contact-actions {
-    right: 0;
-    max-width: 500px;
-    opacity: 1;
-}
-.contacts-list li .contact-actions .webrtc-call,
-.contacts-list li .contact-actions .webrtc-decline{
-    display: none;
-}
-.contacts-list li.online .contact-actions .webrtc-call,
-.contacts-list li.away .contact-actions .webrtc-call {
-    display: inline-block;
-}
-.contacts-list li.talking .contact-actions .webrtc-call {
-    display: none!important;
-}
-.contacts-list li.talking .contact-actions .webrtc-decline {
-    display: inline-block!important;
 }
 
 .user-status {
@@ -461,42 +319,8 @@ body.register-page form {
     color: #fff;
 }
 
-.contact-search {
+.photo-search {
     margin-bottom: 5px;
-}
-
-.incoming-call {
-    transform: translateX(-50%) translateY(-50%);
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 100;
-    background: #333;
-    background: rgba(0, 0, 0, 0.75);
-    padding: 1em;
-    border-radius: 4em;
-    height: 8em;
-    width: 32em;
-    margin-left: -16em;
-    margin-top: -4em;
-    text-align: center;
-    display: none;
-}
-
-.incoming-call .caller-info {
-    font-size: 2em;
-    color: #fff;
-    margin-top: -0.25em;
-}
-
-.incoming-call .call-actions {
-}
-
-.incoming-call .call-actions .action {
-}
-
-.incoming-call .call-actions .action .text {
-    padding: 0 5px;
 }
 
 @media (min-width: 992px) {
@@ -550,4 +374,21 @@ body.register-page form {
 
 .clear {
     clear:both;
+}
+
+.thumbnail img{
+    width: 100%;
+    min-height: 200px;
+}
+
+.admin-panel-li a{
+    background-color: indianred;
+}
+
+.nav-relative{
+    position: relative;
+}
+
+.alert-process{
+ display:none;
 }
