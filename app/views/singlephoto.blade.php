@@ -3,8 +3,30 @@
 <div class="image-navigation" style="padding-left: 0; padding-top: 0;">
 
     <a href="{{ URL::to($photoData->photo_destination_url) }}" class="photo-link" style="float:left">
-        <img src="{{ URL::to($photoData->photo_destination_url) }}" alt="First">
+        <img id="album-or-photo-title" data-toggle = "modal" data-target = "#showPhotoModal" src="{{ URL::to($photoData->photo_destination_url) }}" alt="First">
     </a>
+    <div class="clear"></div>
+    <hr>
+    <!-- Modal -->
+    <div class="modal in" id="showPhotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">{{ $photoData->photo_name }}</h4>
+                </div>
+                <div class="modal-body" align="center">
+                    <div><img src="@if($photoData->photo_destination_url) {{ URL::to($photoData->photo_destination_url) }} @else {{ URL::to('assets/img/no-image-thumb.jpg') }} @endif" alt="First"></div>
+                    <div class="clear"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="col-sm-12">
         <p><strong>Photo Name:</strong>  {{ $photoData->photo_name }}</p>
         <p><strong>Album:</strong>  {{ HTML::link('albums/'.$photoData->album_id ,$photoData->album_name) }}</p>
@@ -16,7 +38,7 @@
         <p><strong>Photo tags:</strong>  @for ($i = 0; $i < sizeOf($photoTagNames); $i++) {{ HTML::link('tag/'.$photoTagNames[$i], $photoTagNames[$i]) }}@if($i < sizeOf($photoTagNames)-2), @endif @endfor</p>
         <p><strong>Views:</strong>  {{ $photoData->views }}</p>
 
-        @if(Auth::check())
+        @if(Auth::check() && $isPhotoCreator == 1)
         <div data-photoid="{{ $photoData->photo_id }}">
             <button id="delete-single-photo" class="btn btn-danger">
                 <i class="glyphicon glyphicon-trash"></i>
@@ -80,7 +102,7 @@
 <div class="tabs">
     <ul id="myTab" class="nav nav-tabs">
         <li class="active"><a href="#comment-in-album-tab" data-toggle="tab">Comment</a></li>
-        @if(Auth::check())<li class=""><a href="#edit-album-tab" data-toggle="tab">Edit</a></li>@endif
+        @if(Auth::check() && $isPhotoCreator == 1)<li class=""><a href="#edit-album-tab" data-toggle="tab">Edit</a></li>@endif
     </ul>
     <div id="myTabContent" class="tab-content">
 
@@ -92,7 +114,11 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <button id="photo-comment-delete-button" type="button" class="close" data-dismiss="modal" data-commentid="{{ $comments[$i]->comment_id }}" aria-hidden="true">×</button>
+                            @if(Auth::check())
+                                @if($comments[$i]->user_id == Auth::user()->id || Auth::user()->role_id == 1)
+                                <button id="photo-comment-delete-button" type="button" class="close" data-dismiss="modal" data-commentid="{{ $comments[$i]->comment_id }}" aria-hidden="true">×</button>
+                                @endif
+                            @endif
                             <a data-toggle="collapse" data-parent="#accordion" href="#comment{{ $comments[$i]->comment_id }}">
                                 <p>
                                     @if($comments[$i]->username)
@@ -126,7 +152,7 @@
             </div>
 
         </div>
-        @if(Auth::check())
+        @if(Auth::check() && $isPhotoCreator == 1)
         <div class="tab-pane fade" id="edit-album-tab">
             {{ Form::open(array('files'=> true, 'method' => 'post', 'id' => 'edit-photo-data-form', 'class' => 'form-hidden')) }}
 
@@ -145,7 +171,7 @@
             <p>{{ Form::label('categories', 'Choose category') }}</p>
             <p>{{ Form::select('categories[]', $allExistingCategories, null, array('class' => 'form-control')) }}</p>
 
-            <p>{{ Form::label('photoTags', 'edit tags') }}</p>
+            <p>{{ Form::label('photoTags', 'edit tags (separate tags by comma and space(", ") or just space(" "))') }}</p>
             <p>{{ Form::text('photoTags', $photoTags, array('class' => 'form-control')) }}</p>
 
             <p>{{ Form::label('albumTitlePhoto', 'Make this title album photo?') }}</p>

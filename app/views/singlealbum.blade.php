@@ -3,9 +3,10 @@
 <div class="image-navigation" style="padding-left: 0; padding-top: 0;">
 
     <a href="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('/albums/'.$albumData->album_id) }} @endif" class="photo-link" style="float:left">
-        <img data-toggle = "modal" data-target = "#showPhotoModal" src="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('assets/img/NoAlbumArt.jpg') }} @endif" alt="First">
+        <img id="album-or-photo-title" data-toggle = "modal" data-target = "#showPhotoModal" src="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('assets/img/NoAlbumArt.jpg') }} @endif" alt="First">
     </a>
-
+    <div class="clear"></div>
+    <hr>
     <!-- Modal -->
     <div class="modal fade" id="showPhotoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -14,12 +15,14 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title" id="myModalLabel">TitlePhoto</h4>
                 </div>
-                <div class="modal-body">
-                    <img src="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('assets/img/NoAlbumArt.jpg') }} @endif" alt="First">
+                <div class="modal-body" align="center">
+                    <div><img src="@if($albumData->album_title_photo_url) {{ URL::to($albumData->album_title_photo_url) }} @else {{ URL::to('assets/img/NoAlbumArt.jpg') }} @endif" alt="First"></div>
+                    <div class="clear"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -134,8 +137,10 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">
-                                @if($isUserHavingPrivilegies)
+                                @if(Auth::check())
+                                    @if($comments[$i]->user_id == Auth::user()->id || Auth::user()->role_id == 1)
                                     <button id="album-comment-delete-button" type="button" class="close" data-dismiss="modal" data-commentid="{{ $comments[$i]->comment_id }}" aria-hidden="true">×</button>
+                                    @endif
                                 @endif
                                 <a data-toggle="collapse" data-parent="#accordion" href="#comment{{ $comments[$i]->comment_id }}">
                                     <p>

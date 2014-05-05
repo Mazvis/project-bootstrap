@@ -476,10 +476,13 @@ class Album{
      * @return string
      */
     public function deleteComment($commentId){
-        if(DB::delete('delete from comments where comment_id = ?', array($commentId)))
-            return "Deleted";
+        $comment = DB::select('SELECT user_id FROM comments where comment_id = ?', array($commentId));
+        //if comment exists
+        if($comment)
+            if($comment[0]->user_id == Auth::user()->id || Auth::user()->role_id == 1)
+                if(DB::delete('delete from comments where comment_id = ?', array($commentId)))
+                    return "Deleted";
     }
-
 
 /*
  * VIEWS
@@ -532,6 +535,26 @@ class Album{
         if($ifUser)
             return 1;
         return 0;
+    }
+
+    /**
+     * @param $albums
+     * @return null
+     */
+    public function isAlbumsCreatorForAlbumsTemplate($albums){
+        if(Auth::check()){
+            $i = 0;
+            $array = null;
+            foreach($albums as $album){
+                if($this->isUserAlbumCreator(Auth::user()->id, $album->album_id) || Auth::user()->role_id == 1){
+                    $array[$i] = 1;
+                }
+                else
+                    $array[$i] = 0;
+                $i++;
+            }
+            return $array;
+        }
     }
 
 /*

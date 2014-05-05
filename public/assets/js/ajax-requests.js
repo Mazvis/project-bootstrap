@@ -205,7 +205,7 @@
         var albumIdToDelete = $(this).parents('#delete-album-data').data('albumid');
         $.ajax({
             type: "POST",
-            url: '../delete-album',
+            url: 'delete-album',
             data: {
                 albumId: albumIdToDelete
             }

@@ -228,14 +228,16 @@ class AlbumController extends BaseController {
     }
 
     /**
-     * Deletes selected comment
+     * Deletes selected comment in album or photo page
      *
      * @return string
      */
     public function deleteComment(){
-        $commentId = strip_tags(Input::get('commentIdToDelete'));
-        $album = new Album();
-        return $album->deleteComment($commentId);
+        if(Auth::check()){
+            $commentId = strip_tags(Input::get('commentIdToDelete'));
+            $album = new Album();
+            return $album->deleteComment($commentId);
+        }
     }
 
 /*

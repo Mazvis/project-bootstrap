@@ -168,6 +168,16 @@ class Photo{
         return $photos;
     }
 
+    /**
+     * Returns all existing photos
+     *
+     * @return mixed
+     */
+    public function getAllPhotoData(){
+        $photos = DB::select('select photos.*, albums.album_name as album_name from photos left join albums on photos.album_id = albums.album_id order by photos.photo_created_at', array());
+        return $photos;
+    }
+
 /*
  * DELETES
  */
@@ -465,6 +475,9 @@ class Photo{
         DB::update('update photos set views = views+1 where photo_id = ?', array($photoId));
     }
 
+/*
+ * PRIVILEGES
+ */
     /**
      * Checks if user is photo creator
      *
@@ -473,24 +486,55 @@ class Photo{
      * @return int
      */
     public function isUserPhotoCreator($currentUserId, $photoId){
-        $albums = DB::table('photos')->where('photo_id', $photoId)->get();
+        $photos = DB::table('photos')->where('photo_id', $photoId)->get();
         $userId = null;
-        foreach($albums as $album)
-            $userId = $album->user_id;
+        foreach($photos as $photo)
+            $userId = $photo->user_id;
         if($currentUserId == $userId)
             return 1;
         return 0;
     }
 
     /**
-     * Returns all existing photos
-     *
-     * @return mixed
+     * @return null
      */
-    public function getAllPhotoData(){
-        $photos = DB::select('select photos.*, albums.album_name as album_name from photos left join albums on photos.album_id = albums.album_id order by photos.photo_created_at', array());
-        return $photos;
+    public function isPhotoCreatorForPhotos(){
+        if(Auth::check()){
+            $photos = $this->getAllPhotoData();
+            $i = 0;
+            $array = null;
+            foreach($photos as $photo){
+                if($this->isUserPhotoCreator(Auth::user()->id, $photo->photo_id) || Auth::user()->role_id == 1){
+                    $array[$i] = 1;
+                }
+                else
+                    $array[$i] = 0;
+                $i++;
+            }
+            return $array;
+        }
     }
+
+    /**
+     * @param $photos
+     * @return null
+     */
+    public function isPhotoCreatorForPhotosTemplate($photos){
+        if(Auth::check()){
+            $i = 0;
+            $array = null;
+            foreach($photos as $photo){
+                if($this->isUserPhotoCreator(Auth::user()->id, $photo->photo_id) || Auth::user()->role_id == 1){
+                    $array[$i] = 1;
+                }
+                else
+                    $array[$i] = 0;
+                $i++;
+            }
+            return $array;
+        }
+    }
+
 
 /*
  * SIDEBAR

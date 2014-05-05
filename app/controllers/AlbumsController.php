@@ -36,4 +36,23 @@ class AlbumsController extends BaseController {
         $albums = new Albums();
         return $albums->getAllAlbums();
     }
+
+    public function isAlbumCreator(){
+        if(Auth::check()){
+            $albumM = new Album();
+            $albums = $this->getAllAlbums();
+            $i = 0;
+            $array = null;
+            foreach($albums as $album){
+                if($albumM->isUserAlbumCreator(Auth::user()->id, $album->album_id) || Auth::user()->role_id == 1){
+                    $array[$i] = 1;
+                }
+                else
+                    $array[$i] = 0;
+                $i++;
+            }
+            return $array;
+        }
+    }
+
 }

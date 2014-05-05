@@ -13,7 +13,8 @@
                 {{ HTML::image('assets/img/no-image-thumb.jpg', $photos[$i]->photo_short_description, array('width' => '200', 'height' => '200')) }}
                 @endif
             </a>
-            @if(Auth::check() && Auth::user()->role_id == 1)
+
+            @if(Auth::check() && $isPhotoCreator[$i])
             <div id="delete-photo-data" class="caption photo-link" data-id="{{ $photos[$i]->photo_id }}">
                 <p>
                     {{ HTML::link(URL::to('albums/'.$photos[$i]->album_id.'/photo/'.$photos[$i]->photo_id), 'Edit', array('class' => 'btn btn-primary', 'role' => 'button')) }}

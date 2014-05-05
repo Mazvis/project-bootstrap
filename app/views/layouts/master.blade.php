@@ -100,20 +100,6 @@
 
             <aside class="main-sidebar">
 
-                <div class="user-status">
-                    @if(Auth::check())
-                    {{ HTML::link('/profile', Auth::user()->username, array('class' => 'profile-link')) }}
-                    <form class="online-status">
-                        <select>
-                            <option selected>online</option>
-                            <option>invisible</option>
-                        </select>
-                    </form>
-                    @else
-                    {{ HTML::link('/login', 'Not Logged in', array('class' => 'profile-link')) }}
-                    @endif
-                </div>
-
                 <div class="photo-search">
                     {{ Form::open(array('route' => 'search.photo', 'method' => 'post', 'id' => 'search-form')) }}
                     <input type="search" placeholder="Search photos" class="form-control" name="photo-search-by-tag" id="search" autocomplete="off">

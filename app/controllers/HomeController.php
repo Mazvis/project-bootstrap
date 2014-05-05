@@ -95,6 +95,9 @@ class HomeController extends BaseController {
 
                 $album = new AlbumController();
                 $this->layout->content->userAlbums = $album->getAllUserAlbums($userData[0]->id);
+
+                $albumM = new Album();
+                $this->layout->content->isAlbumCreator = $albumM->isAlbumsCreatorForAlbumsTemplate($album->getAllUserAlbums($userData[0]->id));
             }
         }
         else
@@ -120,6 +123,8 @@ class HomeController extends BaseController {
 
         $albums = new AlbumsController();
         $this->layout->content->allAlbums = $albums->getAllAlbums();
+
+        $this->layout->content->isAlbumCreator = $albums->isAlbumCreator();
     }
 
     /**
@@ -141,17 +146,17 @@ class HomeController extends BaseController {
 
 
             $this->layout->content->albumPhotos = $album->getAlbumPhotos($albumId);
+
+            $albumData = $album->getAlbumDataByAlbumId($albumId);
             $this->layout->content->albumData = $albumData[0];
 
             //likes
-            $this->layout->content->likes = $album->getAlbumLikes($albumId);//+
-            $this->layout->content->isLikeAlreadyExists = $album->isLikeAlreadyExists($albumId);//+
+            $this->layout->content->likes = $album->getAlbumLikes($albumId);
+            $this->layout->content->isLikeAlreadyExists = $album->isLikeAlreadyExists($albumId);
 
             //comments
-            $this->layout->content->comments = $album->getAlbumComments($albumId);//+
+            $this->layout->content->comments = $album->getAlbumComments($albumId);
 
-            //tags
-            //$this->layout->content->allExistingTags = $photo->getAllExistingTags();
             //categories
             $this->layout->content->allExistingCategories = $photo->getAllExistingCategories();
 
@@ -199,6 +204,8 @@ class HomeController extends BaseController {
 
             //comments
             $this->layout->content->comments = $photo->getPhotoComments($photoId);
+
+            $this->layout->content->isPhotoCreator = $photo->isUserPhotoCreator($photoId);
         }
         else
             $this->showNotFoundPage();
@@ -219,6 +226,9 @@ class HomeController extends BaseController {
 
             //$this->layout->content->photos = $photo->getPhotoDataByTagId($tag[0]->tag_id);
             $this->layout->content->photos = $photos;
+
+        $photoM = new Photo();
+        $this->layout->content->isPhotoCreator = $photoM->isPhotoCreatorForPhotosTemplate($photos);
     }
 
     /*
@@ -233,6 +243,9 @@ class HomeController extends BaseController {
         $this->layout->bodyclass = "home-page";
 
         $this->layout->content->photos = $photos;
+
+        $photoM = new Photo();
+        $this->layout->content->isPhotoCreator = $photoM->isPhotoCreatorForPhotosTemplate($photos);
     }
 
     /*
@@ -247,6 +260,9 @@ class HomeController extends BaseController {
         $this->layout->bodyclass = "home-page";
 
         $this->layout->content->photos = $photos;
+
+        $photoM = new Photo();
+        $this->layout->content->isPhotoCreator = $photoM->isPhotoCreatorForPhotosTemplate($photos);
     }
 
     /**

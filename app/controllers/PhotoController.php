@@ -23,8 +23,8 @@ class PhotoController extends BaseController {
             if($photo->isUserPhotoCreator($currentUserID, $currentPhotoId) || Auth::user()->role_id == 1){
 
                 $currentAlbumId = strip_tags(Input::get('albumId'));
-                $selectedCategories = strip_tags(Input::get('categories'));
-                $editedTags = strip_tags(Input::get('photoTags'));
+                $selectedCategories = Input::get('categories');
+                $editedTags = Input::get('photoTags');
 
                 $photoName = strip_tags(Input::get('photoName'));
                 $shortDescription = strip_tags(Input::get('shDescription'));
@@ -282,6 +282,7 @@ class PhotoController extends BaseController {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteCategory(){
+
         if(Auth::check())
             //if is admin
             if(Auth::user()->role_id == 1){
@@ -320,6 +321,7 @@ class PhotoController extends BaseController {
         return $photo->getRandomPhoto();
     }
 
+
     /**
      * Gets most viewed photo for sidebar
      *
@@ -329,5 +331,22 @@ class PhotoController extends BaseController {
         $photo = new Photo();
         return $photo->getMostViewedPhoto();
     }
+
+/*
+ * PRIVILEGES
+ */
+
+    /**
+     * @param $photoId
+     * @return int
+     */
+    public function isUserPhotoCreator($photoId){
+        $currentUserId = null;
+        if(Auth::check())
+            $currentUserId = Auth::user()->id;
+        $photo = new Photo();
+        return $photo->isUserPhotoCreator($currentUserId, $photoId);
+    }
+
 
 }
